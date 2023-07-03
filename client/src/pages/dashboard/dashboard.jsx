@@ -1,10 +1,22 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Telegram from "@mui/icons-material/Telegram";
 import AttachFile from "@mui/icons-material/AttachFile";
 import CameraAltOutlined from "@mui/icons-material/CameraAltOutlined";
 import Logout from "@mui/icons-material/Logout";
+import axios from "axios";
+import { useSelector } from "react-redux";
 
 const Dashboard = () => {
+  const [users, setUsers] = useState([]);
+  const CurrentUser = useSelector((state) => state.user.CurrentUser);
+  const FilteredUsers = users.filter((item) => item.id !== CurrentUser.id);
+
+  useEffect(() => {
+    axios
+      .get(`${process.env.REACT_APP_LOCALHOST}users`)
+      .then((res) => setUsers(res.data));
+  }, []);
+
   return (
     <div className="w-full h-screen bg-gray-200 flex">
       <div className="lg:w-[400px] h-full bg-gray-200 bg-opacity-30">
@@ -13,7 +25,8 @@ const Dashboard = () => {
             <div className="w-[90px] h-[90px] rounded-full bg-black"></div>
             <div className="p-4">
               <span className="text-bold text-violet-600 text-2xl font-bold">
-                Tarik Kabaki
+                {CurrentUser.username.charAt(0).toUpperCase() +
+                  CurrentUser.username.slice(1)}
               </span>
               <div className="flex items-center gap-2">
                 <div className="w-[14px] h-[14px] bg-green-500 rounded-full"></div>
@@ -28,18 +41,20 @@ const Dashboard = () => {
               placeholder="Search..."
             />
           </div>
-
-          <div className="flex p-5">
-            <div className="w-[70px] h-[70px] rounded-full bg-black"></div>
-            <div className="p-1 pl-4">
-              <span className="text-bold text-violet-600 font-bold">
-                Iman Kabaki
-              </span>
-              <div className="flex items-center gap-2">
-                <div className="text-gray-500">Hellow</div>
+          {FilteredUsers.map((item) => (
+            <div className="flex p-5">
+              <div className="w-[70px] h-[70px] rounded-full bg-black"></div>
+              <div className="p-1 pl-4">
+                <span className="text-bold text-violet-600 font-bold">
+                  {item.username.charAt(0).toUpperCase() +
+                    item.username.slice(1)}
+                </span>
+                <div className="flex items-center gap-2">
+                  <div className="text-gray-500">Hellow</div>
+                </div>
               </div>
             </div>
-          </div>
+          ))}
         </div>
         <div className=" absolute bottom-0 left-0">
           <div className="p-4 bg-black rounded-tr-2xl gap-3 flex items-center">

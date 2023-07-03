@@ -1,7 +1,19 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Upload from "@mui/icons-material/Upload";
-
+import axios from "axios";
+import { useParams } from "react-router-dom";
 const Avatar = () => {
+  const userId = useParams();
+  /*
+  const [user, setUser] = useState();
+
+  useEffect(() => {
+    axios
+      .get(`${process.env.REACT_APP_LOCALHOST}users/${userId.}`)
+      .then((res) => setUser(res.data))
+      .catch((err) => console.log(err));
+  }, []);*/
+
   return (
     <div className="w-full h-screen bg-gray-200 flex justify-center items-center">
       <div>
