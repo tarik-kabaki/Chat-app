@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import image3 from "../../images/image3.webp";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { login } from "../../redux/userSlice";
+import { login, fetchUsers } from "../../redux/userSlice";
 import { useDispatch } from "react-redux";
 import jwt_decode from "jwt-decode";
 import ErrorOutlineRounded from "@mui/icons-material/ErrorOutlineRounded";
@@ -25,8 +25,17 @@ const Login = () => {
         dispatch(login(res.data));
         navigate("/dashboard");
         dispatch(TokenDecode(jwt_decode(res.data.Token)));
+        handleFetchingUsers();
       })
       .catch((err) => setErr(err.response.data.message));
+  };
+
+  const handleFetchingUsers = () => {
+    axios
+      .post(`${process.env.REACT_APP_LOCALHOST}users/find`, {
+        username: username,
+      })
+      .then((res) => dispatch(fetchUsers(res.data)));
   };
 
   return (

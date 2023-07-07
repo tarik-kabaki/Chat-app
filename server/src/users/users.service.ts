@@ -8,13 +8,18 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Users } from './entity/users.entity';
 import { usersDto } from './dto/users.dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
   constructor(@InjectRepository(Users) private usersRepo: Repository<Users>) {}
 
   findAll() {
-    return this.usersRepo.find();
+    return this.usersRepo.find({
+      relations: {
+        messages: { room: { user1: true, user2: true } },
+      },
+    });
   }
 
   async findOne(id: number) {
@@ -33,6 +38,16 @@ export class UsersService {
     });
 
     return user;
+  }
+
+  async FilteredUsers(username: string) {
+    const users = await this.usersRepo.find({
+      relations: {
+        messages: { room: { user1: true, user2: true } },
+      },
+    });
+    const filterUsers = users.filter((item: any) => item.username !== username);
+    return filterUsers;
   }
 
   async create(usersdto: usersDto) {
@@ -54,7 +69,13 @@ export class UsersService {
     ) {
       throw new BadRequestException();
     }
-    const newUser = await this.usersRepo.create(usersdto);
+
+    const salt = await bcrypt.genSalt();
+    const hash = await bcrypt.hash(usersdto.password, salt);
+    const newUser = await this.usersRepo.create({
+      ...usersdto,
+      password: hash,
+    });
     return await this.usersRepo.save(newUser);
   }
 

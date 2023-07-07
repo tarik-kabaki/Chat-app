@@ -4,6 +4,10 @@ import { UsersModule } from './users/users.module';
 import { Users } from './users/entity/users.entity';
 import { AuthModule } from './auth/auth.module';
 import { EventsModule } from './events/events.module';
+import { MessagesModule } from './messages/messages.module';
+import { RoomModule } from './room/room.module';
+import { Room } from './room/entity/room.entity';
+import { Messages } from './messages/entity/messages.entity';
 
 @Module({
   imports: [
@@ -14,12 +18,14 @@ import { EventsModule } from './events/events.module';
       username: 'postgres',
       password: '0644758842kkk',
       database: 'realchat',
-      entities: [Users],
+      entities: [Users, Room, Messages],
       synchronize: true,
     }),
     UsersModule,
     AuthModule,
     EventsModule,
+    MessagesModule,
+    RoomModule,
   ],
   controllers: [],
   providers: [],

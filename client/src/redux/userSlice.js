@@ -5,6 +5,7 @@ export const userSlice = createSlice({
   initialState: {
     CurrentUser: null,
     Token: null,
+    users: [],
   },
   reducers: {
     login: (state, action) => {
@@ -14,8 +15,12 @@ export const userSlice = createSlice({
     TokenDecode: (state, action) => {
       state.CurrentUser = action.payload;
     },
+
+    fetchUsers: (state, action) => {
+      state.users.push(...action.payload);
+    },
   },
 });
 
-export const { login, TokenDecode } = userSlice.actions;
+export const { login, TokenDecode, fetchUsers } = userSlice.actions;
 export default userSlice.reducer;

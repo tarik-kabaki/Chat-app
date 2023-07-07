@@ -1,3 +1,4 @@
+import { io } from "socket.io-client";
 import Avatar from "./pages/avatar/avatar";
 import Dashboard from "./pages/dashboard/dashboard";
 import Intro from "./pages/intro/intro";

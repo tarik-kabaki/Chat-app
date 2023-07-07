@@ -25,6 +25,11 @@ export class UsersController {
     return this.usersService.findOne(id);
   }
 
+  @Post('find')
+  async FilteredUsers(@Body('username') username: string) {
+    return this.usersService.FilteredUsers(username);
+  }
+
   @Post('create')
   create(@Body() userDto: usersDto): Promise<usersDto> {
     return this.usersService.create(userDto);
