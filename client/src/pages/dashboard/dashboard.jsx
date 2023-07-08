@@ -2,14 +2,16 @@ import React, { useEffect, useState } from "react";
 import SearchRounded from "@mui/icons-material/SearchRounded";
 import Chat from "../chat/chat";
 import PowerSettingsNew from "@mui/icons-material/PowerSettingsNew";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import un from "../../av/un.png";
 import axios from "axios";
+import { handleRoom } from "../../redux/roomSlice";
 
 const Dashboard = () => {
   const [room, setRoom] = useState();
   const UsersList = useSelector((state) => state.user.users);
   const CurrentUser = useSelector((state) => state.user.CurrentUser);
+  const dispatch = useDispatch();
 
   const HandleUserRoom = (data) => {
     axios
@@ -17,7 +19,10 @@ const Dashboard = () => {
         user_2_id: data.id,
         name: `${CurrentUser.id + data.id}`,
       })
-      .then((res) => setRoom(res.data))
+      .then((res) => {
+        setRoom(res.data);
+        dispatch(handleRoom(res.data));
+      })
       .catch((err) => console.log(err));
   };
 
@@ -78,14 +83,14 @@ const Dashboard = () => {
             </section>
           </div>
 
-          <button className="text-rose-500 flex rounded-full bg-white items-center gap-1 hover:text-black hover:bg-rose-600 duration-300">
+          <button className="text-rose-500 flex rounded-full bg-white items-center gap-1 hover:text-white hover:bg-rose-600 duration-300">
             <div className="p-1  ">
               <PowerSettingsNew />
             </div>
           </button>
         </div>
       </div>
-      <Chat CurrentUser={CurrentUser} room={room} />
+      <Chat CurrentUser={CurrentUser} />
     </div>
   );
 };

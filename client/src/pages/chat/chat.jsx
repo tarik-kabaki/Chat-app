@@ -4,9 +4,13 @@ import AttachFile from "@mui/icons-material/AttachFile";
 import image5 from "../../images/image5.png";
 import un from "../../av/un.png";
 import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
+import { handleRoomMessages } from "../../redux/roomSlice";
 
-const Chat = ({ CurrentUser, room }) => {
+const Chat = ({ CurrentUser }) => {
   const [message, setMessage] = useState("");
+  const room = useSelector((state) => state.room.Room);
+  const dispatch = useDispatch();
 
   const HandleMessage = () => {
     axios
@@ -17,7 +21,7 @@ const Chat = ({ CurrentUser, room }) => {
           messages: message,
         }
       )
-      .then((res) => console.log(res.data))
+      .then((res) => dispatch(handleRoomMessages(res.data)))
       .catch((err) => console.log(err));
   };
 
@@ -44,8 +48,9 @@ const Chat = ({ CurrentUser, room }) => {
           </div>
 
           <div className="h-[80%] bg-gray-200 p-10 overflow-y-scroll overflow-hidden">
-            {room.messages.map((item) => (
+            {room.messages.map((item, key) => (
               <div
+                key={key}
                 className={
                   item.users.id === CurrentUser.id
                     ? "flex justify-start gap-3 mb-10"
@@ -90,9 +95,10 @@ const Chat = ({ CurrentUser, room }) => {
                         ? "flex justify-end text-gray-500"
                         : "flex justify-end text-gray-300"
                     }
-                  >{`${new Date(item.createdAt).getHours()}:${new Date(
-                    item.createdAt
-                  ).getMinutes()}`}</div>
+                  >{`${new Date(item.createdAt).getHours()}:${
+                    (new Date(item.createdAt).getMinutes() < 10 ? "0" : "") +
+                    new Date(item.createdAt).getMinutes()
+                  }`}</div>
                 </section>
               </div>
             ))}
