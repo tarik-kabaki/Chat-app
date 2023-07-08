@@ -20,7 +20,6 @@ const Dashboard = () => {
       .then((res) => setRoom(res.data))
       .catch((err) => console.log(err));
   };
-  console.log(room);
 
   return (
     <div className="h-screen w-full flex">
