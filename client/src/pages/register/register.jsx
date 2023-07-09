@@ -2,13 +2,18 @@ import React, { useState } from "react";
 import image4 from "../../images/image4.png";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import PhotoLibrary from "@mui/icons-material/PhotoLibrary";
+import IconButton from "@mui/material/IconButton";
 
 const Register = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [file, setFile] = useState(null);
   const [secc, setSecc] = useState(null);
   const navigate = useNavigate();
+  const formatData = new FormData();
+  formatData.append("file", file);
 
   const Register = () => {
     axios
@@ -17,7 +22,21 @@ const Register = () => {
         email,
         password,
       })
-      .then((res) => navigate(`/avatar/${res.data.id}`))
+      .then((res) => {
+        navigate(`/login`);
+        axios
+          .patch(
+            `${process.env.REACT_APP_LOCALHOST}users/create/image/${res.data.id}`,
+            formatData,
+            {
+              headers: {
+                "Content-Type": "multipart/form-data",
+              },
+            }
+          )
+          .then((res) => console.log(res.data))
+          .catch((err) => console.log(err));
+      })
       .catch((err) => console.log(err));
   };
 
@@ -49,13 +68,21 @@ const Register = () => {
                 className="p-4 w-[80%] border-b-4 border-gray-800 bg-inherit focus:outline-none"
               />
             </div>
-            <div className="flex justify-center mb-16">
+            <div className="flex justify-center mb-5">
               <input
                 onChange={(e) => setPassword(e.target.value)}
                 type="password"
                 placeholder="Password"
                 className="p-4 w-[80%] border-b-4 border-gray-800 bg-inherit focus:outline-none"
               />
+            </div>
+            <div className="flex justify-center items-center mb-5">
+              <button className="w-[80%] border-2 border-blue-500 p-4 flex rounded-md hover:bg-gray-800 duration-300">
+                <input
+                  type="file"
+                  onChange={(e) => setFile(e.target.files[0])}
+                />
+              </button>
             </div>
             <div className="flex justify-center mb-14">
               <button

@@ -1,3 +1,4 @@
+import { OnModuleInit } from '@nestjs/common';
 import {
   MessageBody,
   SubscribeMessage,
@@ -11,10 +12,26 @@ import { Server } from 'socket.io';
     origin: 'http://localhost:3000',
   },
 })
-export class EventsGateway {
+export class EventsGateway implements OnModuleInit {
   @WebSocketServer()
   server: Server;
 
-  @SubscribeMessage('events')
-  handleMessage(@MessageBody() data: string) {}
+  onModuleInit() {
+    return this.server.on('connection', (socket) => {
+      console.log(socket.id);
+
+      socket.on('joinRoom', (data) => {
+        socket.join(data);
+        console.log(`User with ID ${socket.id} join room : ${data}`);
+      });
+
+      socket.on('sendMessage', (data) => {
+        socket.to(data.room.name).emit('responeData', data);
+      });
+
+      socket.on('disconnect', () => {
+        console.log(`User with ID ${socket.id} has been disconnect`);
+      });
+    });
+  }
 }

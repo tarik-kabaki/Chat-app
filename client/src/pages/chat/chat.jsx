@@ -7,7 +7,7 @@ import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { handleRoomMessages } from "../../redux/roomSlice";
 
-const Chat = ({ CurrentUser }) => {
+const Chat = ({ CurrentUser, receiver, socket }) => {
   const [message, setMessage] = useState("");
   const room = useSelector((state) => state.room.Room);
   const dispatch = useDispatch();
@@ -21,9 +21,16 @@ const Chat = ({ CurrentUser }) => {
           messages: message,
         }
       )
-      .then((res) => dispatch(handleRoomMessages(res.data)))
+      .then((res) => {
+        dispatch(handleRoomMessages(res.data));
+        socket.emit("sendMessage", res.data);
+      })
       .catch((err) => console.log(err));
   };
+
+  useEffect(() => {
+    socket.on("responeData", (data) => dispatch(handleRoomMessages(data)));
+  }, [socket]);
 
   return (
     <div className="w-[80%] h-full bg-gray-100 relative">
@@ -32,11 +39,21 @@ const Chat = ({ CurrentUser }) => {
           <div className="w-full">
             <div className="h-[100px] bg-opacity-30 border-b-[0.5px]  border-gray-300">
               <div className="gap-5 p-10 flex items-center h-full w-full">
-                <div className="w-[60px] h-[60px] rounded-full bg-white"></div>
+                <div className="w-[60px] h-[60px] rounded-full overflow-hidden">
+                  <img
+                    src={
+                      receiver?.image
+                        ? `${process.env.REACT_APP_LOCALHOST}users/upload/${receiver.image}`
+                        : un
+                    }
+                    className=" object-cover bg-white"
+                  />
+                </div>
+
                 <section>
                   <span className="text-2xl text-slate-600">
-                    {room.user2.username.charAt(0).toUpperCase() +
-                      room.user2.username.slice(1)}
+                    {receiver.username.charAt(0).toUpperCase() +
+                      receiver.username.slice(1)}
                   </span>
                   <div className="flex gap-2 items-center ">
                     <div className="w-[10px] h-[10px] rounded-full bg-green-500"></div>
@@ -76,8 +93,12 @@ const Chat = ({ CurrentUser }) => {
                         item.users.username.slice(1)}
                     </span>
                     <img
-                      src={item?.users?.image ? item.users.image : un}
-                      className="w-[30px] h-[30px] rounded-full object-contain bg-gray-100"
+                      src={
+                        item?.users?.image
+                          ? `${process.env.REACT_APP_LOCALHOST}users/upload/${item.users.image}`
+                          : un
+                      }
+                      className="w-[30px] h-[30px] rounded-full object-contain "
                     />
                   </div>
                   <p
@@ -87,7 +108,7 @@ const Chat = ({ CurrentUser }) => {
                         : "mb-3 text-slate-100"
                     }
                   >
-                    {item.message}
+                    {item?.message}
                   </p>
                   <div
                     className={

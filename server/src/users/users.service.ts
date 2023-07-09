@@ -22,6 +22,17 @@ export class UsersService {
     });
   }
 
+  async uploadUserImage(id: number, image: string) {
+    const user = await this.usersRepo.findOne({
+      where: { id: id },
+    });
+    if (!user) {
+      throw new NotFoundException('This user is not exist!');
+    }
+
+    return this.usersRepo.save({ ...user, image: image });
+  }
+
   async findOne(id: number) {
     const user = await this.usersRepo.findOne({
       where: { id: id },

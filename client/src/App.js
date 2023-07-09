@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { io } from "socket.io-client";
 import Avatar from "./pages/avatar/avatar";
 import Dashboard from "./pages/dashboard/dashboard";
@@ -8,6 +9,8 @@ import { Routes } from "react-router-dom";
 import { Route } from "react-router-dom";
 
 function App() {
+  const [socket, setSocket] = useState(io.connect("http://localhost:3001/"));
+
   return (
     <div className="App">
       <Routes>
@@ -15,7 +18,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/avatar/:id" element={<Avatar />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/dashboard" element={<Dashboard socket={socket} />} />
       </Routes>
     </div>
   );
