@@ -5,9 +5,9 @@ import image5 from "../../images/image5.png";
 import un from "../../av/un.png";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
-import { handleRoomMessages } from "../../redux/roomSlice";
+import { handleCustomRoom, handleRoomMessages } from "../../redux/roomSlice";
 
-const Chat = ({ CurrentUser, receiver, socket }) => {
+const Chat = ({ CurrentUser, receiver, socket, isOnline }) => {
   const [message, setMessage] = useState("");
   const room = useSelector((state) => state.room.Room);
   const dispatch = useDispatch();
@@ -29,7 +29,10 @@ const Chat = ({ CurrentUser, receiver, socket }) => {
   };
 
   useEffect(() => {
-    socket.on("responeData", (data) => dispatch(handleRoomMessages(data)));
+    socket.on("responeData", (data) => {
+      dispatch(handleCustomRoom(data));
+      console.log(data);
+    });
   }, [socket]);
 
   return (
@@ -55,10 +58,12 @@ const Chat = ({ CurrentUser, receiver, socket }) => {
                     {receiver.username.charAt(0).toUpperCase() +
                       receiver.username.slice(1)}
                   </span>
-                  <div className="flex gap-2 items-center ">
-                    <div className="w-[10px] h-[10px] rounded-full bg-green-500"></div>
-                    <span className="text-gray-500 text-sm">Online</span>
-                  </div>
+                  {isOnline ? (
+                    <div className="flex gap-2 items-center ">
+                      <div className="w-[10px] h-[10px] rounded-full bg-green-500"></div>
+                      <span className="text-gray-500 text-sm">Online</span>
+                    </div>
+                  ) : null}
                 </section>
               </div>
             </div>

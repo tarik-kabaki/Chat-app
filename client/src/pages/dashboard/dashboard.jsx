@@ -5,14 +5,15 @@ import PowerSettingsNew from "@mui/icons-material/PowerSettingsNew";
 import { useDispatch, useSelector } from "react-redux";
 import un from "../../av/un.png";
 import axios from "axios";
-import { handleRoom } from "../../redux/roomSlice";
+import { fetchRooms, handleRoom } from "../../redux/roomSlice";
 import { io } from "socket.io-client";
 
 const Dashboard = ({ socket }) => {
-  const [room, setRoom] = useState();
   const [receiver, setReceiver] = useState();
+  const [isOnline, setIsOnline] = useState(null);
   const UsersList = useSelector((state) => state.user.users);
   const CurrentUser = useSelector((state) => state.user.CurrentUser);
+  const room = useSelector((state) => state.room.Room);
   const dispatch = useDispatch();
 
   const HandleUserRoom = (data) => {
@@ -20,10 +21,9 @@ const Dashboard = ({ socket }) => {
     axios
       .post(`${process.env.REACT_APP_LOCALHOST}room/create/${CurrentUser.id}`, {
         user_2_id: data.id,
-        name: `${CurrentUser.id + data.id}`,
+        name: `${CurrentUser.username}/${data.username}`,
       })
       .then((res) => {
-        setRoom(res.data);
         socket.emit("joinRoom", res.data.name);
         dispatch(handleRoom(res.data));
       })
@@ -42,8 +42,9 @@ const Dashboard = ({ socket }) => {
             className="p-3 w-full rounded-full shadow-md bg-gray-600"
           />
         </div>
-        {UsersList.map((item) => (
+        {UsersList.map((item, i) => (
           <section
+            key={i}
             onClick={() => HandleUserRoom(item)}
             className="hover:bg-gray-600 duration-300 cursor-pointer"
           >
@@ -65,7 +66,7 @@ const Dashboard = ({ socket }) => {
                     {item.username.charAt(0).toUpperCase() +
                       item.username.slice(1)}
                   </div>
-                  <div className=" text-gray-400 text-sm">Hello world!</div>
+                  <div className=" text-gray-400 text-sm">HELLO</div>
                 </div>
               </div>
               <div className="text-gray-400">11:56</div>
@@ -108,7 +109,12 @@ const Dashboard = ({ socket }) => {
           </button>
         </div>
       </div>
-      <Chat CurrentUser={CurrentUser} receiver={receiver} socket={socket} />
+      <Chat
+        CurrentUser={CurrentUser}
+        receiver={receiver}
+        socket={socket}
+        isOnline={isOnline}
+      />
     </div>
   );
 };

@@ -51,14 +51,11 @@ export class RoomService {
       throw new BadRequestException();
     }
 
-    /* const findExistingRoom = await this.roomRepo
-      .createQueryBuilder('test')
-      .where('user_1 = :id', { id: user_1.id })
-      .andWhere('user_2 = :user_2_id', { user_2_id: user_2.id })
-      .getOne();*/
-
     const findExistingRoom = await this.roomRepo.findOne({
-      where: { name: `${user_1.id + user_2.id}` },
+      where: { name: `${user_1.username}/${user_2.username}` },
+    });
+    const findExistingRoomByRe = await this.roomRepo.findOne({
+      where: { name: `${user_2.username}/${user_1.username}` },
     });
 
     if (findExistingRoom) {
@@ -71,17 +68,30 @@ export class RoomService {
         where: { id: findExistingRoom.id },
       });
       return getingExistingRoom;
+    } else if (findExistingRoomByRe) {
+      const getingExistingRoom = this.roomRepo.findOne({
+        relations: {
+          user1: true,
+          user2: true,
+          messages: { users: true },
+        },
+        where: { id: findExistingRoomByRe.id },
+      });
+      return getingExistingRoom;
     }
 
     const ExistingName = await this.roomRepo.findOne({
-      where: { name: name },
+      where: { name: `${user_1.username}/${user_2.username}` },
+    });
+    const ExistingNameByRe = await this.roomRepo.findOne({
+      where: { name: `${user_2.username}/${user_1.username}` },
     });
 
-    if (ExistingName) {
+    if (ExistingName || ExistingNameByRe) {
       throw new BadRequestException('This room is already exist!');
     }
 
-    const RoomName = user_1.id + user_2.id;
+    const RoomName = `${user_1.username}/${user_2.username}`;
 
     const room = await this.roomRepo.create({ name: `${RoomName}` });
 

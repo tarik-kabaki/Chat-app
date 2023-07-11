@@ -9,7 +9,7 @@ import { Routes } from "react-router-dom";
 import { Route } from "react-router-dom";
 
 function App() {
-  const [socket, setSocket] = useState(io.connect("http://localhost:3001/"));
+  const socket = io.connect("http://localhost:3001/");
 
   return (
     <div className="App">

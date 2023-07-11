@@ -17,8 +17,8 @@ export class EventsGateway implements OnModuleInit {
   server: Server;
 
   onModuleInit() {
-    return this.server.on('connection', (socket) => {
-      console.log(socket.id);
+    this.server.on('connection', (socket) => {
+      console.log(`User with ID ${socket.id} is connected`);
 
       socket.on('joinRoom', (data) => {
         socket.join(data);
