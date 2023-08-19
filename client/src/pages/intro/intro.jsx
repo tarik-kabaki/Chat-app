@@ -7,7 +7,7 @@ import ArrowCircleRightOutlined from "@mui/icons-material/ArrowCircleRightOutlin
 const Intro = () => {
   const navigate = useNavigate();
   return (
-    <div className=" bg-gray-200 w-full h-screen p-10 flex items-center ">
+    <div className=" bgs w-full h-screen p-10 flex items-center ">
       <div className="flex-1">
         <div className="pl-32 drop-shadow-xl">
           <div className="text-4xl mb-5 text-blue-500 drop-shadow-lg font-bold">

@@ -7,6 +7,7 @@ import { useDispatch } from "react-redux";
 import jwt_decode from "jwt-decode";
 import ErrorOutlineRounded from "@mui/icons-material/ErrorOutlineRounded";
 import { TokenDecode } from "../../redux/userSlice";
+import "./log.css";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -23,7 +24,6 @@ const Login = () => {
       })
       .then((res) => {
         dispatch(login(res.data));
-        navigate("/dashboard");
         dispatch(TokenDecode(jwt_decode(res.data.Token)));
         handleFetchingUsers();
       })
@@ -39,7 +39,7 @@ const Login = () => {
   };
 
   return (
-    <div className="bg-gray-200 w-full h-screen p-10 flex items-center ">
+    <div className="bgg w-full h-screen p-10 flex items-center ">
       <div className="flex-1 flex justify-center p-16">
         <img
           src={image3}

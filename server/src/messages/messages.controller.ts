@@ -26,4 +26,9 @@ export class MessagesController {
   ) {
     return this.messageService.createMsg(userId, roomId, messages);
   }
+
+  @Post('getmany/:roomId')
+  findMessagesByRoomId(@Param('roomId') roomId: number) {
+    return this.messageService.findMessagesByRoomId(roomId);
+  }
 }

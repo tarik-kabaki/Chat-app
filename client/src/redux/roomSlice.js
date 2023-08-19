@@ -8,7 +8,11 @@ export const roomSlice = createSlice({
   },
   reducers: {
     handleRoom: (state, action) => {
-      state.Room = action.payload;
+      const messages = (state.Room = action.payload);
+      messages.messages.sort((a, b) => a.id - b.id);
+    },
+    handleRoomArry: (state, action) => {
+      state.Room.messages.push(...action.payload);
     },
 
     handleRoomMessages: (state, action) => {
@@ -21,9 +25,19 @@ export const roomSlice = createSlice({
         state.Room.messages.push(action.payload);
       }
     },
+
+    logOut: (state) => {
+      state.Room = null;
+      state.Rooms = [];
+    },
   },
 });
 
-export const { handleRoom, handleRoomMessages, handleCustomRoom } =
-  roomSlice.actions;
+export const {
+  handleRoom,
+  handleRoomMessages,
+  handleCustomRoom,
+  handleRoomArry,
+  logOut,
+} = roomSlice.actions;
 export default roomSlice.reducer;

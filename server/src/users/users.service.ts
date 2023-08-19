@@ -54,7 +54,8 @@ export class UsersService {
   async FilteredUsers(username: string) {
     const users = await this.usersRepo.find({
       relations: {
-        messages: { room: { user1: true, user2: true } },
+        room: { messages: { users: true } },
+        rooms: { messages: { users: true } },
       },
     });
     const filterUsers = users.filter((item: any) => item.username !== username);
@@ -74,6 +75,8 @@ export class UsersService {
       );
     }
     if (
+      usersdto.firstname.length < 3 ||
+      usersdto.lastname.length < 3 ||
       usersdto.username.length < 5 ||
       usersdto.password.length < 5 ||
       usersdto.email.length < 8

@@ -18,6 +18,16 @@ export class MessagesService {
     return this.messagesRepo.find();
   }
 
+  async findMessagesByRoomId(roomId: number) {
+    const messages = await this.messagesRepo
+      .createQueryBuilder('messages')
+      .select()
+      .where('messages.roomId = :roomId', { roomId })
+
+      .getMany();
+    return messages;
+  }
+
   async createMsg(userId: number, roomId: number, messages: string) {
     const user = await this.usersRepo.findOne({
       where: { id: userId },

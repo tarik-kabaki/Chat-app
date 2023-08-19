@@ -1,4 +1,17 @@
-.bgs {
+.cardContainer {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  height: 500px;
+  width: 400px;
+  background-color: white;
+  padding: 4;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.lyr {
   background: rgb(180, 177, 58);
   background: linear-gradient(
     90deg,

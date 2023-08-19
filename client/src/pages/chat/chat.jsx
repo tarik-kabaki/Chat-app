@@ -6,6 +6,12 @@ import un from "../../av/un.png";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { handleCustomRoom, handleRoomMessages } from "../../redux/roomSlice";
+import "../dashboard/dash.css";
+import "./chat.css";
+
+import EmojiPicker from "emoji-picker-react";
+import { handleUsersMessages } from "../../redux/userSlice";
+import RemoveMessage from "../model/removeMessage";
 
 const Chat = ({ CurrentUser, receiver, socket, isOnline }) => {
   const [message, setMessage] = useState("");
@@ -23,7 +29,9 @@ const Chat = ({ CurrentUser, receiver, socket, isOnline }) => {
       )
       .then((res) => {
         dispatch(handleRoomMessages(res.data));
+
         socket.emit("sendMessage", res.data);
+        //dispatch(handleUsersMessages({ ...res.data, to: receiver.id }))
       })
       .catch((err) => console.log(err));
   };
@@ -40,24 +48,37 @@ const Chat = ({ CurrentUser, receiver, socket, isOnline }) => {
       {room ? (
         <div className="w-full h-full">
           <div className="w-full">
-            <div className="h-[100px] bg-opacity-30 border-b-[0.5px]  border-gray-300">
-              <div className="gap-5 p-10 flex items-center h-full w-full">
-                <div className="w-[60px] h-[60px] rounded-full overflow-hidden">
+            <div className="h-[120px] bg-opacity-30 shadow-gray-800 shadow-2xl">
+              <div className="flex h-full w-full p-5 pl-10">
+                <div className="w-[80px] h-[80px] border-2 border-white shadow-gray-500 shadow-sm rounded-full overflow-hidden">
                   <img
                     src={
                       receiver?.image
                         ? `${process.env.REACT_APP_LOCALHOST}users/upload/${receiver.image}`
                         : un
                     }
-                    className=" object-cover bg-white"
+                    className="object-cover bg-white w-[80px] h-[80px] "
                   />
                 </div>
 
-                <section>
-                  <span className="text-2xl text-slate-600">
-                    {receiver.username.charAt(0).toUpperCase() +
-                      receiver.username.slice(1)}
-                  </span>
+                <section className="p-2">
+                  <div className="text-2xl text-slate-600 flex items-center gap-1">
+                    <span>
+                      {receiver.firstname.charAt(0).toUpperCase() +
+                        receiver.firstname.slice(1)}
+                    </span>
+                    <span>
+                      {receiver.lastname.charAt(0).toUpperCase() +
+                        receiver.lastname.slice(1)}
+                    </span>
+                  </div>
+                  <div className=" text-gray-500 flex items-center gap-1">
+                    <span>
+                      #
+                      {receiver.username.charAt(0).toUpperCase() +
+                        receiver.username.slice(1)}
+                    </span>
+                  </div>
                   {isOnline ? (
                     <div className="flex gap-2 items-center ">
                       <div className="w-[10px] h-[10px] rounded-full bg-green-500"></div>
@@ -75,36 +96,44 @@ const Chat = ({ CurrentUser, receiver, socket, isOnline }) => {
                 key={key}
                 className={
                   item.users.id === CurrentUser.id
-                    ? "flex justify-start gap-3 mb-10"
-                    : "flex justify-end gap-3 mb-10"
+                    ? " more-c flex justify-start gap-3 mb-10"
+                    : " more-c flex justify-end gap-3 mb-10"
                 }
               >
                 <section
                   className={
                     item.users.id === CurrentUser.id
-                      ? "bg-white p-5 rounded-xl shadow-xl"
-                      : "bg-gray-700 p-5 rounded-xl shadow-xl"
+                      ? " bg-white p-5 rounded-lg shadow-xl relative max-w-[60%]"
+                      : " bg-gray-700 p-5 rounded-lg shadow-xl relative max-w-[60%]"
                   }
                 >
-                  <div className="mb-5 flex items-center gap-3">
+                  <div className="mb-5 flex items-center gap-2">
+                    <div className="w-[30px] h-[30px] rounded-full overflow-hidden">
+                      <img
+                        src={
+                          item?.users?.image
+                            ? `${process.env.REACT_APP_LOCALHOST}users/upload/${item.users.image}`
+                            : un
+                        }
+                        className="object-cover w-[30px] h-[30px]"
+                      />
+                    </div>
                     <span
                       className={
                         item.users.id === CurrentUser.id
-                          ? " text-rose-600"
-                          : " text-cyan-400"
+                          ? " text-orange-500 flex items-center gap-1"
+                          : " text-purple-400 flex items-center gap-1"
                       }
                     >
-                      {item.users.username.charAt(0).toUpperCase() +
-                        item.users.username.slice(1)}
+                      <span>
+                        {item.users.firstname.charAt(0).toUpperCase() +
+                          item.users.firstname.slice(1)}
+                      </span>
+                      <span>
+                        {item.users.lastname.charAt(0).toUpperCase() +
+                          item.users.lastname.slice(1)}
+                      </span>
                     </span>
-                    <img
-                      src={
-                        item?.users?.image
-                          ? `${process.env.REACT_APP_LOCALHOST}users/upload/${item.users.image}`
-                          : un
-                      }
-                      className="w-[30px] h-[30px] rounded-full object-contain "
-                    />
                   </div>
                   <p
                     className={
@@ -118,13 +147,16 @@ const Chat = ({ CurrentUser, receiver, socket, isOnline }) => {
                   <div
                     className={
                       item.users.id === CurrentUser.id
-                        ? "flex justify-end text-gray-500"
-                        : "flex justify-end text-gray-300"
+                        ? "flex justify-end text-gray-500 text-sm"
+                        : "flex justify-end text-gray-300 text-sm"
                     }
                   >{`${new Date(item.createdAt).getHours()}:${
                     (new Date(item.createdAt).getMinutes() < 10 ? "0" : "") +
                     new Date(item.createdAt).getMinutes()
-                  }`}</div>
+                  } 
+                    
+                  `}</div>
+                  <RemoveMessage item={item} CurrentUser={CurrentUser} />
                 </section>
               </div>
             ))}
@@ -138,15 +170,16 @@ const Chat = ({ CurrentUser, receiver, socket, isOnline }) => {
                 placeholder="Write something to send ..."
               />
               <div className="w-[20%] flex items-center justify-end gap-3 p-5">
-                <div className="p-2 rounded-full bg-slate-400 text-white">
+                <button className="p-2 rounded-full bg-slate-400 text-white hover:bg-gray-600 duration-300">
                   <AttachFile />
-                </div>
-                <div
+                </button>
+
+                <button
                   onClick={HandleMessage}
-                  className="p-2 rounded-full bg-green-500 text-white"
+                  className="p-2 rounded-full bg-emerald-500 text-white hover:bg-emerald-700 duration-300"
                 >
                   <Telegram />
-                </div>
+                </button>
               </div>
             </div>
           </div>
@@ -177,3 +210,6 @@ export default Chat;
                 <div className="flex justify-end text-gray-300">13:46</div>
               </section>
             </div> */
+
+/*
+            {new Date(item.createdAt).toISOString().split("T")[0]} */

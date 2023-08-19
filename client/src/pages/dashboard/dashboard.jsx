@@ -5,19 +5,20 @@ import PowerSettingsNew from "@mui/icons-material/PowerSettingsNew";
 import { useDispatch, useSelector } from "react-redux";
 import un from "../../av/un.png";
 import axios from "axios";
-import { fetchRooms, handleRoom } from "../../redux/roomSlice";
-import { io } from "socket.io-client";
+import { handleRoom, handleRoomArry, logOut } from "../../redux/roomSlice";
+import { handleUsersRoom, logout } from "../../redux/userSlice";
+import Model from "../model/model";
+import Moment from "moment";
 
 const Dashboard = ({ socket }) => {
   const [receiver, setReceiver] = useState();
-  const [isOnline, setIsOnline] = useState(null);
   const UsersList = useSelector((state) => state.user.users);
   const CurrentUser = useSelector((state) => state.user.CurrentUser);
-  const room = useSelector((state) => state.room.Room);
   const dispatch = useDispatch();
 
   const HandleUserRoom = (data) => {
     setReceiver(data);
+
     axios
       .post(`${process.env.REACT_APP_LOCALHOST}room/create/${CurrentUser.id}`, {
         user_2_id: data.id,
@@ -26,14 +27,91 @@ const Dashboard = ({ socket }) => {
       .then((res) => {
         socket.emit("joinRoom", res.data.name);
         dispatch(handleRoom(res.data));
+        //dispatch(handleUsersRoom({ receiver: data.id, roomData: res.data }));
       })
       .catch((err) => console.log(err));
   };
 
+  const handleLogout = () => {
+    dispatch(logout());
+    dispatch(logOut());
+  };
+
+  const cleanCode = (curr, item) =>
+    item.rooms?.find((i) =>
+      i?.name?.includes(`${curr?.username}/${item?.username}`)
+    )?.messages[
+      item.rooms?.find((i) =>
+        i?.name?.includes(`${curr?.username}/${item?.username}`)
+      )?.messages?.length - 1
+    ]?.message ||
+    item?.room?.find((i) =>
+      i?.name?.includes(`${item?.username}/${curr?.username}`)
+    )?.messages[
+      item.room?.find((x) =>
+        x?.name?.includes(`${item?.username}/${curr?.username}`)
+      )?.messages?.length - 1
+    ]?.message;
+
+  // make this code short - later
+  const UserLastMessagesDate = (curr, item) =>
+    `${new Date(
+      item.rooms?.find((i) =>
+        i?.name?.includes(`${curr?.username}/${item?.username}`)
+      )?.messages[
+        item.rooms?.find((i) =>
+          i?.name?.includes(`${curr?.username}/${item?.username}`)
+        )?.messages?.length - 1
+      ]?.createdAt ||
+        item?.room?.find((i) =>
+          i?.name?.includes(`${item?.username}/${curr?.username}`)
+        )?.messages[
+          item.room?.find((x) =>
+            x?.name?.includes(`${item?.username}/${curr?.username}`)
+          )?.messages?.length - 1
+        ]?.createdAt
+    ).getHours()}:${
+      (new Date(
+        item.rooms?.find((i) =>
+          i?.name?.includes(`${curr?.username}/${item?.username}`)
+        )?.messages[
+          item.rooms?.find((i) =>
+            i?.name?.includes(`${curr?.username}/${item?.username}`)
+          )?.messages?.length - 1
+        ]?.createdAt ||
+          item?.room?.find((i) =>
+            i?.name?.includes(`${item?.username}/${curr?.username}`)
+          )?.messages[
+            item.room?.find((x) =>
+              x?.name?.includes(`${item?.username}/${curr?.username}`)
+            )?.messages?.length - 1
+          ]?.createdAt
+      ).getMinutes() < 10
+        ? "0"
+        : "") +
+      new Date(
+        item.rooms?.find((i) =>
+          i?.name?.includes(`${curr?.username}/${item?.username}`)
+        )?.messages[
+          item.rooms?.find((i) =>
+            i?.name?.includes(`${curr?.username}/${item?.username}`)
+          )?.messages?.length - 1
+        ]?.createdAt ||
+          item?.room?.find((i) =>
+            i?.name?.includes(`${item?.username}/${curr?.username}`)
+          )?.messages[
+            item.room?.find((x) =>
+              x?.name?.includes(`${item?.username}/${curr?.username}`)
+            )?.messages?.length - 1
+          ]?.createdAt
+      ).getMinutes()
+    }`;
+
   return (
     <div className="h-screen w-full flex">
       <div className="w-[400px] bg-gray-800 bg-opacity-90 h-full relative">
-        <div className=" h-[100px] p-5 gap-2  mb-5 flex items-center justify-center">
+        <Model CurrentUser={CurrentUser} un={un} />
+        <div className=" h-[100px] p-5 gap-2  flex items-center justify-center">
           <div className="p-3 bg-gray-600 rounded-full shadow-md text-white ">
             <SearchRounded />
           </div>
@@ -42,79 +120,53 @@ const Dashboard = ({ socket }) => {
             className="p-3 w-full rounded-full shadow-md bg-gray-600"
           />
         </div>
-        {UsersList.map((item, i) => (
+        {UsersList.map((item, index) => (
           <section
-            key={i}
+            key={index}
             onClick={() => HandleUserRoom(item)}
             className="hover:bg-gray-600 duration-300 cursor-pointer"
           >
-            <div className="p-7 flex justify-between items-center gap-2 ">
+            <div className="p-4 flex justify-between items-center gap-1">
               <div className="flex gap-2 ">
-                <div className="w-[60px] h-[60px] rounded-full overflow-hidden">
+                <div className="w-[70px] h-[70px] border-2 border-slate-200 rounded-full overflow-hidden">
                   <img
                     src={
                       item?.image
                         ? `${process.env.REACT_APP_LOCALHOST}users/upload/${item.image}`
                         : un
                     }
-                    className=" object-cover"
+                    className="object-cover w-[70px] h-[70px]"
                   />
                 </div>
 
-                <div className="p-1">
-                  <div className=" text-white">
-                    {item.username.charAt(0).toUpperCase() +
-                      item.username.slice(1)}
+                <div className="p-2">
+                  <div className=" text-white flex items-center gap-1">
+                    <span>
+                      {item.firstname.charAt(0).toUpperCase() +
+                        item.firstname.slice(1)}
+                    </span>
+                    <span>
+                      {item.lastname.charAt(0).toUpperCase() +
+                        item.lastname.slice(1)}
+                    </span>
                   </div>
-                  <div className=" text-gray-400 text-sm">HELLO</div>
+
+                  <div className=" text-gray-400 text-sm">
+                    <div className="flex items-center text-ellipsis overflow-hidden whitespace-nowrap w-[200px] gap-2">
+                      <div className="w-[5px] h-[5px] p-1 rounded-full bg-purple-400"></div>
+                      <span> {cleanCode(CurrentUser, item)}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div className="text-gray-400">11:56</div>
-            </div>
-            <div className="flex justify-center">
-              <hr className="border-1 border-gray-600 w-[90%]" />
+              <div className="text-gray-400 text-sm">
+                {UserLastMessagesDate(CurrentUser, item)}
+              </div>
             </div>
           </section>
         ))}
-
-        <div className="w-full border-t-[0.5px] border-gray-600 p-3 h-[65px] absolute bottom-0  h-50px flex items-center justify-between">
-          <div className="flex gap-2">
-            <div className="w-[40px] h-[40px] rounded-full overflow-hidden">
-              <img
-                src={
-                  CurrentUser?.image
-                    ? `${process.env.REACT_APP_LOCALHOST}users/upload/${CurrentUser.image}`
-                    : un
-                }
-                className=" bg-slate-500 object-cover"
-              />
-            </div>
-
-            <section className="">
-              <div className="text-sm text-white">
-                {CurrentUser.username.charAt(0).toUpperCase() +
-                  CurrentUser.username.slice(1)}
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="text-[12px] text-green-500">Active</div>
-                <span className="w-[7px] h-[7px] rounded-full bg-green-500"></span>
-              </div>
-            </section>
-          </div>
-
-          <button className="text-rose-500 flex rounded-full bg-white items-center gap-1 hover:text-white hover:bg-rose-600 duration-300">
-            <div className="p-1  ">
-              <PowerSettingsNew />
-            </div>
-          </button>
-        </div>
       </div>
-      <Chat
-        CurrentUser={CurrentUser}
-        receiver={receiver}
-        socket={socket}
-        isOnline={isOnline}
-      />
+      <Chat CurrentUser={CurrentUser} receiver={receiver} socket={socket} />
     </div>
   );
 };
