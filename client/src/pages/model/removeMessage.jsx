@@ -1,37 +1,50 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Box from "@mui/material/Box";
 import ".././chat/chat.css";
 import Delete from "@mui/icons-material/Delete";
 import Modal from "@mui/material/Modal";
+import { useDispatch, useSelector } from "react-redux";
+import { handleRemoveRoomMessage } from "../../redux/roomSlice";
+import { handleRemoveUsersMessages } from "../../redux/userSlice";
+import axios from "axios";
 
-const style = {
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  width: 400,
-  bgcolor: "background.paper",
-  border: "2px solid #000",
-  boxShadow: 24,
-  p: 4,
-};
-
-const RemoveMessage = ({ item, CurrentUser }) => {
+const RemoveMessage = ({ item, CurrentUser, receiver, socket }) => {
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+  const CurrentRoom = useSelector((state) => state.room.Room);
+  const dispatch = useDispatch();
+
+  const handleMessagesRemove = () => {
+    axios.delete(
+      `${process.env.REACT_APP_LOCALHOST}messages/removeMsg/${item.id}`
+    );
+    socket.emit("messageRemoveRequest", {
+      msgData: item,
+      sender: CurrentUser,
+      receiver: receiver,
+      room: CurrentRoom,
+    });
+    dispatch(handleRemoveRoomMessage({ messageId: item.id }));
+    dispatch(handleRemoveUsersMessages({ receiver: receiver, msgData: item }));
+    handleClose();
+  };
+
   return (
     <div>
-      <button
-        onClick={handleOpen}
-        className={
-          item.users.id === CurrentUser.id
-            ? "more absolute top-[50%] right-[-50px] text-gray-400 hover:text-rose-500 duration-300"
-            : "more absolute top-[50%] left-[-50px] text-gray-400 hover:text-rose-500 duration-300"
-        }
-      >
-        <Delete />
-      </button>
+      {item.users.id === CurrentUser.id ? (
+        <button
+          onClick={handleOpen}
+          className={
+            item.users.id === CurrentUser.id
+              ? "more absolute top-[50%] right-[-50px] text-gray-400 hover:text-rose-500 duration-300"
+              : "more absolute top-[50%] left-[-50px] text-gray-400 hover:text-rose-500 duration-300"
+          }
+        >
+          <Delete />
+        </button>
+      ) : null}
+
       <Modal
         open={open}
         onClose={handleClose}
@@ -53,7 +66,10 @@ const RemoveMessage = ({ item, CurrentUser }) => {
               >
                 Cancel
               </button>
-              <button className="rounded-sm w-[25%] h-[50px] bg-blue-600 text-white hover:bg-blue-500 duration-300">
+              <button
+                onClick={handleMessagesRemove}
+                className="rounded-sm w-[25%] h-[50px] bg-blue-600 text-white hover:bg-blue-500 duration-300"
+              >
                 Yes, Delete
               </button>
             </div>

@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import SearchRounded from "@mui/icons-material/SearchRounded";
 import Chat from "../chat/chat";
-import PowerSettingsNew from "@mui/icons-material/PowerSettingsNew";
 import { useDispatch, useSelector } from "react-redux";
 import un from "../../av/un.png";
 import axios from "axios";
+
+import Model from "../model/model";
 import { handleRoom, handleRoomArry, logOut } from "../../redux/roomSlice";
 import { handleUsersRoom, logout } from "../../redux/userSlice";
-import Model from "../model/model";
 import Moment from "moment";
 
 const Dashboard = ({ socket }) => {
@@ -32,11 +32,6 @@ const Dashboard = ({ socket }) => {
       .catch((err) => console.log(err));
   };
 
-  const handleLogout = () => {
-    dispatch(logout());
-    dispatch(logOut());
-  };
-
   const cleanCode = (curr, item) =>
     item.rooms?.find((i) =>
       i?.name?.includes(`${curr?.username}/${item?.username}`)
@@ -44,73 +39,35 @@ const Dashboard = ({ socket }) => {
       item.rooms?.find((i) =>
         i?.name?.includes(`${curr?.username}/${item?.username}`)
       )?.messages?.length - 1
-    ]?.message ||
+    ] ||
     item?.room?.find((i) =>
       i?.name?.includes(`${item?.username}/${curr?.username}`)
     )?.messages[
       item.room?.find((x) =>
         x?.name?.includes(`${item?.username}/${curr?.username}`)
       )?.messages?.length - 1
-    ]?.message;
+    ];
 
-  // make this code short - later
-  const UserLastMessagesDate = (curr, item) =>
-    `${new Date(
+  const UserLastMessagesDate = (item, curr) =>
+    item.rooms?.find((i) =>
+      i?.name?.includes(`${curr?.username}/${item?.username}`)
+    )?.messages[
       item.rooms?.find((i) =>
         i?.name?.includes(`${curr?.username}/${item?.username}`)
-      )?.messages[
-        item.rooms?.find((i) =>
-          i?.name?.includes(`${curr?.username}/${item?.username}`)
-        )?.messages?.length - 1
-      ]?.createdAt ||
-        item?.room?.find((i) =>
-          i?.name?.includes(`${item?.username}/${curr?.username}`)
-        )?.messages[
-          item.room?.find((x) =>
-            x?.name?.includes(`${item?.username}/${curr?.username}`)
-          )?.messages?.length - 1
-        ]?.createdAt
-    ).getHours()}:${
-      (new Date(
-        item.rooms?.find((i) =>
-          i?.name?.includes(`${curr?.username}/${item?.username}`)
-        )?.messages[
-          item.rooms?.find((i) =>
-            i?.name?.includes(`${curr?.username}/${item?.username}`)
-          )?.messages?.length - 1
-        ]?.createdAt ||
-          item?.room?.find((i) =>
-            i?.name?.includes(`${item?.username}/${curr?.username}`)
-          )?.messages[
-            item.room?.find((x) =>
-              x?.name?.includes(`${item?.username}/${curr?.username}`)
-            )?.messages?.length - 1
-          ]?.createdAt
-      ).getMinutes() < 10
-        ? "0"
-        : "") +
-      new Date(
-        item.rooms?.find((i) =>
-          i?.name?.includes(`${curr?.username}/${item?.username}`)
-        )?.messages[
-          item.rooms?.find((i) =>
-            i?.name?.includes(`${curr?.username}/${item?.username}`)
-          )?.messages?.length - 1
-        ]?.createdAt ||
-          item?.room?.find((i) =>
-            i?.name?.includes(`${item?.username}/${curr?.username}`)
-          )?.messages[
-            item.room?.find((x) =>
-              x?.name?.includes(`${item?.username}/${curr?.username}`)
-            )?.messages?.length - 1
-          ]?.createdAt
-      ).getMinutes()
-    }`;
+      )?.messages?.length - 1
+    ]?.createdAt ||
+    item?.room?.find((i) =>
+      i?.name?.includes(`${item?.username}/${curr?.username}`)
+    )?.messages[
+      item.room?.find((x) =>
+        x?.name?.includes(`${item?.username}/${curr?.username}`)
+      )?.messages?.length - 1
+    ]?.createdAt;
 
   return (
     <div className="h-screen w-full flex">
       <div className="w-[400px] bg-gray-800 bg-opacity-90 h-full relative">
-        <Model CurrentUser={CurrentUser} un={un} />
+        <Model CurrentUser={CurrentUser} un={un} socket={socket} />
         <div className=" h-[100px] p-5 gap-2  flex items-center justify-center">
           <div className="p-3 bg-gray-600 rounded-full shadow-md text-white ">
             <SearchRounded />
@@ -127,7 +84,7 @@ const Dashboard = ({ socket }) => {
             className="hover:bg-gray-600 duration-300 cursor-pointer"
           >
             <div className="p-4 flex justify-between items-center gap-1">
-              <div className="flex gap-2 ">
+              <div className="flex gap-2">
                 <div className="w-[70px] h-[70px] border-2 border-slate-200 rounded-full overflow-hidden">
                   <img
                     src={
@@ -152,16 +109,51 @@ const Dashboard = ({ socket }) => {
                   </div>
 
                   <div className=" text-gray-400 text-sm">
-                    <div className="flex items-center text-ellipsis overflow-hidden whitespace-nowrap w-[200px] gap-2">
-                      <div className="w-[5px] h-[5px] p-1 rounded-full bg-purple-400"></div>
-                      <span> {cleanCode(CurrentUser, item)}</span>
-                    </div>
+                    {cleanCode(CurrentUser, item)?.message ? (
+                      <div className="flex items-center text-ellipsis overflow-hidden whitespace-nowrap w-[200px] gap-2">
+                        <div className="w-[5px] h-[5px] p-1 rounded-full bg-orange-400"></div>
+                        {CurrentUser.id ===
+                        cleanCode(CurrentUser, item)?.users.id ? (
+                          <div className="text-white">You : </div>
+                        ) : null}
+
+                        <span>{`${
+                          cleanCode(CurrentUser, item)?.message
+                        }`}</span>
+                      </div>
+                    ) : (
+                      <span className="text-orange-400">
+                        #.
+                        {item.username.charAt(0).toUpperCase() +
+                          item.username.slice(1)}
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
-              <div className="text-gray-400 text-sm">
-                {UserLastMessagesDate(CurrentUser, item)}
-              </div>
+              {!UserLastMessagesDate(item, CurrentUser) ? null : (
+                <div className="text-gray-400 text-sm">
+                  {`${
+                    new Date(
+                      UserLastMessagesDate(item, CurrentUser)
+                    ).getHours() === 0
+                      ? "00"
+                      : new Date(
+                          UserLastMessagesDate(item, CurrentUser)
+                        ).getHours()
+                  }:${
+                    (new Date(
+                      UserLastMessagesDate(item, CurrentUser)
+                    ).getMinutes() < 10
+                      ? "0"
+                      : "") +
+                    new Date(
+                      UserLastMessagesDate(item, CurrentUser)
+                    ).getMinutes()
+                  }  
+                  `}
+                </div>
+              )}
             </div>
           </section>
         ))}

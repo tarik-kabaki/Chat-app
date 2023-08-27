@@ -1,4 +1,8 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Messages } from './entity/messages.entity';
 import { Repository } from 'typeorm';
@@ -51,5 +55,17 @@ export class MessagesService {
     message.room = room;
 
     return await this.messagesRepo.save(message);
+  }
+
+  async removeMsg(id: number) {
+    const message = await this.messagesRepo.findOne({
+      where: { id: id },
+    });
+
+    if (!message) {
+      throw new NotFoundException();
+    }
+
+    return this.messagesRepo.remove(message);
   }
 }

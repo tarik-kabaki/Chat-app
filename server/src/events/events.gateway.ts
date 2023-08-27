@@ -1,10 +1,5 @@
 import { OnModuleInit } from '@nestjs/common';
-import {
-  MessageBody,
-  SubscribeMessage,
-  WebSocketGateway,
-  WebSocketServer,
-} from '@nestjs/websockets';
+import { WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server } from 'socket.io';
 
 @WebSocketGateway({
@@ -27,6 +22,10 @@ export class EventsGateway implements OnModuleInit {
 
       socket.on('sendMessage', (data) => {
         socket.to(data.room.name).emit('responeData', data);
+      });
+
+      socket.on('messageRemoveRequest', (data) => {
+        socket.to(data.room.name).emit('resMessageRemoveRequest', data);
       });
 
       socket.on('disconnect', () => {

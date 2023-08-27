@@ -26,6 +26,15 @@ export const roomSlice = createSlice({
       }
     },
 
+    handleRemoveRoomMessage: (state, action) => {
+      state.Room.messages.splice(
+        state.Room.messages.findIndex(
+          (item) => item.id === action.payload.messageId
+        ),
+        1
+      );
+    },
+
     logOut: (state) => {
       state.Room = null;
       state.Rooms = [];
@@ -39,5 +48,6 @@ export const {
   handleCustomRoom,
   handleRoomArry,
   logOut,
+  handleRemoveRoomMessage,
 } = roomSlice.actions;
 export default roomSlice.reducer;

@@ -8,15 +8,28 @@ import { useDispatch, useSelector } from "react-redux";
 import { handleCustomRoom, handleRoomMessages } from "../../redux/roomSlice";
 import "../dashboard/dash.css";
 import "./chat.css";
-
+import RemoveMessage from "../model/removeMessage";
+import { handleRemoveRoomMessage } from "../../redux/roomSlice";
+import { handleRemoveUsersMessages } from "../../redux/userSlice";
 import EmojiPicker from "emoji-picker-react";
 import { handleUsersMessages } from "../../redux/userSlice";
-import RemoveMessage from "../model/removeMessage";
 
 const Chat = ({ CurrentUser, receiver, socket, isOnline }) => {
   const [message, setMessage] = useState("");
   const room = useSelector((state) => state.room.Room);
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    socket.on("resMessageRemoveRequest", (data) => {
+      dispatch(handleRemoveRoomMessage({ messageId: data.msgData.id }));
+      dispatch(
+        handleRemoveUsersMessages({
+          receiver: data.receiver.id,
+          msgData: data.msgData.id,
+        })
+      );
+    });
+  }, [socket]);
 
   const HandleMessage = () => {
     axios
@@ -72,9 +85,9 @@ const Chat = ({ CurrentUser, receiver, socket, isOnline }) => {
                         receiver.lastname.slice(1)}
                     </span>
                   </div>
-                  <div className=" text-gray-500 flex items-center gap-1">
+                  <div className=" text-orange-500 flex items-center gap-1">
                     <span>
-                      #
+                      #.
                       {receiver.username.charAt(0).toUpperCase() +
                         receiver.username.slice(1)}
                     </span>
@@ -150,13 +163,22 @@ const Chat = ({ CurrentUser, receiver, socket, isOnline }) => {
                         ? "flex justify-end text-gray-500 text-sm"
                         : "flex justify-end text-gray-300 text-sm"
                     }
-                  >{`${new Date(item.createdAt).getHours()}:${
+                  >{`${
+                    new Date(item.createdAt).getHours() === 0
+                      ? "00"
+                      : new Date(item.createdAt).getHours()
+                  }:${
                     (new Date(item.createdAt).getMinutes() < 10 ? "0" : "") +
                     new Date(item.createdAt).getMinutes()
                   } 
                     
                   `}</div>
-                  <RemoveMessage item={item} CurrentUser={CurrentUser} />
+                  <RemoveMessage
+                    item={item}
+                    CurrentUser={CurrentUser}
+                    socket={socket}
+                    receiver={receiver}
+                  />
                 </section>
               </div>
             ))}

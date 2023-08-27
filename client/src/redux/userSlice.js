@@ -6,6 +6,7 @@ export const userSlice = createSlice({
     CurrentUser: null,
     Token: null,
     users: [],
+    notification: [],
   },
   reducers: {
     login: (state, action) => {
@@ -42,7 +43,9 @@ export const userSlice = createSlice({
       }
     },
 
-    handleUsersMessages: (state, action) => {
+    handleRemoveUsersMessages: (state, action) => {},
+
+    /* handleUsersMessages: (state, action) => {
       try {
         const users = state.users
           .find((item) => item.id === action.payload.to)
@@ -56,7 +59,9 @@ export const userSlice = createSlice({
 
         user.push(action.payload);
       }
-    },
+    },*/
+
+    handleUsersMessages: (state, action) => {},
 
     logout: (state) => {
       state.CurrentUser = null;
@@ -73,5 +78,6 @@ export const {
   handleUsersMessages,
   handleUsersRoom,
   logout,
+  handleRemoveUsersMessages,
 } = userSlice.actions;
 export default userSlice.reducer;

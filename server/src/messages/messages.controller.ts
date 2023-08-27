@@ -31,4 +31,9 @@ export class MessagesController {
   findMessagesByRoomId(@Param('roomId') roomId: number) {
     return this.messageService.findMessagesByRoomId(roomId);
   }
+
+  @Delete('removeMsg/:id')
+  removeMsg(@Param('id') id: number) {
+    return this.messageService.removeMsg(id);
+  }
 }
