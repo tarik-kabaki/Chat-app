@@ -4,17 +4,25 @@ import Chat from "../chat/chat";
 import { useDispatch, useSelector } from "react-redux";
 import un from "../../av/un.png";
 import axios from "axios";
-
 import Model from "../model/model";
 import { handleRoom, handleRoomArry, logOut } from "../../redux/roomSlice";
 import { handleUsersRoom, logout } from "../../redux/userSlice";
-import Moment from "moment";
 
 const Dashboard = ({ socket }) => {
   const [receiver, setReceiver] = useState();
   const UsersList = useSelector((state) => state.user.users);
   const CurrentUser = useSelector((state) => state.user.CurrentUser);
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    socket.emit("newUser", { userId: CurrentUser.id });
+  }, []);
+
+  useEffect(() => {
+    socket.on("ReshandlingUsersRooms", (data) => {
+      dispatch(handleUsersRoom({ receiver: data.receiver, roomData: data }));
+    });
+  }, [socket]);
 
   const HandleUserRoom = (data) => {
     setReceiver(data);
@@ -27,7 +35,11 @@ const Dashboard = ({ socket }) => {
       .then((res) => {
         socket.emit("joinRoom", res.data.name);
         dispatch(handleRoom(res.data));
-        //dispatch(handleUsersRoom({ receiver: data.id, roomData: res.data }));
+        dispatch(handleUsersRoom({ receiver: data.id, roomData: res.data }));
+        socket.emit("handlingUsersRooms", {
+          ...res.data,
+          receiver: CurrentUser.id,
+        });
       })
       .catch((err) => console.log(err));
   };

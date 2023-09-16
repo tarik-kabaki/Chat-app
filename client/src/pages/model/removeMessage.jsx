@@ -53,11 +53,11 @@ const RemoveMessage = ({ item, CurrentUser, receiver, socket }) => {
       >
         <Box className="model-card ">
           <div className="p-10">
-            <h1 className=" text-xl mb-5">
-              Are you sure you want to delete this message?
+            <h1 className=" text-xl mb-3">
+              Are you sure you want to Delete this message?
             </h1>
-            <p className="mb-10 text-sm text-rose-500">
-              Note : The message will Deleted permanently
+            <p className="mb-10 text-md text-rose-500">
+              Note : The message will be Deleted permanently !
             </p>
             <div className="flex items-center justify-end gap-5 ">
               <button

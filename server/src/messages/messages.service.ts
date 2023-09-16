@@ -32,7 +32,12 @@ export class MessagesService {
     return messages;
   }
 
-  async createMsg(userId: number, roomId: number, messages: string) {
+  async createMsg(
+    userId: number,
+    roomId: number,
+    messages: string,
+    type: string,
+  ) {
     const user = await this.usersRepo.findOne({
       where: { id: userId },
     });
@@ -49,7 +54,10 @@ export class MessagesService {
       throw new BadRequestException("can't send an empty message");
     }
 
-    const message = await this.messagesRepo.create({ message: messages });
+    const message = await this.messagesRepo.create({
+      message: messages,
+      type: type,
+    });
 
     message.users = user;
     message.room = room;
@@ -67,5 +75,38 @@ export class MessagesService {
     }
 
     return this.messagesRepo.remove(message);
+  }
+
+  async uploadChatImage(
+    userId: number,
+    roomId: number,
+    messages: string,
+    type: string,
+  ) {
+    const user = await this.usersRepo.findOne({
+      where: { id: userId },
+    });
+
+    await this.usersRepo.save(user);
+
+    const room = await this.roomRepo.findOne({
+      where: { id: roomId },
+    });
+
+    await this.roomRepo.save(room);
+
+    if (messages.length < 1) {
+      throw new BadRequestException("can't send an empty message");
+    }
+
+    const message = await this.messagesRepo.create({
+      message: messages,
+      type: type,
+    });
+
+    message.users = user;
+    message.room = room;
+
+    return await this.messagesRepo.save(message);
   }
 }

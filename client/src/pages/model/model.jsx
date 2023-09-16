@@ -10,6 +10,7 @@ import PowerSettingsNewRounded from "@mui/icons-material/PowerSettingsNewRounded
 import { useDispatch } from "react-redux";
 import { logOut } from "../../redux/roomSlice";
 import { logout } from "../../redux/userSlice";
+import OutModel from "./outModel";
 
 const Model = ({ CurrentUser, un, socket }) => {
   const [open, setOpen] = React.useState(false);
@@ -53,15 +54,13 @@ const Model = ({ CurrentUser, un, socket }) => {
             {CurrentUser.lastname.charAt(0).toUpperCase() +
               CurrentUser.lastname.slice(1)}
           </span>
-          <div className="text-gray-400 text-sm">
+          <div className="text-orange-400 text-sm">
             #
             {CurrentUser.username.charAt(0).toUpperCase() +
               CurrentUser.username.slice(1)}
           </div>
         </section>
-        <div className="absolute right-3 top-3 w-[34px] h-[34px] rounded-full bg-white text-rose-500 flex justify-center items-center">
-          <PowerSettingsNewRounded />
-        </div>
+        <OutModel />
       </div>
 
       <Modal
@@ -72,7 +71,7 @@ const Model = ({ CurrentUser, un, socket }) => {
       >
         <Box className="cardContainer">
           <div className="w-full h-full relative">
-            <div className="bg-gradient-to-r from-rose-500 to-blue-500 w-full h-[25%]"></div>
+            <div className="bg-gradient-to-r from-orange-500 to-rose-400 w-full h-[25%]"></div>
             <div className="w-full flex justify-center mb-20">
               <div className="overflow-hidden absolute top-12 w-[140px] h-[140px] shadow-gray-400 shadow-lg rounded-full border-4 border-gray-100">
                 <img
@@ -97,7 +96,7 @@ const Model = ({ CurrentUser, un, socket }) => {
                     CurrentUser.lastname.slice(1)}
                 </section>
               </div>
-              <div className="flex justify-center text-md text-gray-500">
+              <div className="flex justify-center text-md text-orange-500">
                 #
                 {CurrentUser.username.charAt(0).toUpperCase() +
                   CurrentUser.username.slice(1)}
@@ -107,7 +106,7 @@ const Model = ({ CurrentUser, un, socket }) => {
             <section className="flex justify-center">
               <div className="">
                 <div className="gap-3 flex items-center mb-5">
-                  <div className="bg-gray-800 text-white rounded-full p-2">
+                  <div className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-full p-2">
                     <BadgeRounded />
                   </div>
                   <div className="flex items-center gap-1">
@@ -122,7 +121,7 @@ const Model = ({ CurrentUser, un, socket }) => {
                   </div>
                 </div>
                 <div className="gap-3 flex items-center mb-5">
-                  <div className="bg-gray-800 text-white rounded-full p-2">
+                  <div className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-full p-2">
                     <AccountCircleRounded />
                   </div>
 
@@ -134,7 +133,7 @@ const Model = ({ CurrentUser, un, socket }) => {
                 </div>
 
                 <div className="gap-3 flex items-center">
-                  <div className="bg-gray-800 text-white rounded-full p-2">
+                  <div className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-full p-2">
                     <EmailRounded />
                   </div>
 
@@ -142,8 +141,21 @@ const Model = ({ CurrentUser, un, socket }) => {
                 </div>
               </div>
             </section>
+          </div>
+        </Box>
+      </Modal>
+    </div>
+  );
+};
 
-            <section className=" absolute top-0 p-4 flex justify-start items-center w-full gap-3">
+export default Model;
+
+/*  <div className="p-3 rounded-full bg-rose-500 text-white border-2 border-white">
+                <DeleteRounded />
+              </div>  
+              
+              
+    <section className=" absolute top-0 p-4 flex justify-start items-center w-full gap-3">
               <button className="p-2 rounded-full bg-blue-500 text-white border-2 border-white cursor-pointer">
                 <BorderColorRounded />
               </button>
@@ -157,15 +169,7 @@ const Model = ({ CurrentUser, un, socket }) => {
                 <PowerSettingsNewRounded />
               </button>
             </section>
-          </div>
-        </Box>
-      </Modal>
-    </div>
-  );
-};
 
-export default Model;
-
-/*  <div className="p-3 rounded-full bg-rose-500 text-white border-2 border-white">
-                <DeleteRounded />
-              </div>  */
+              
+              
+              */

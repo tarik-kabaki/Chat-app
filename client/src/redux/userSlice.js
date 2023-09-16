@@ -63,6 +63,24 @@ export const userSlice = createSlice({
 
     handleUsersMessages: (state, action) => {},
 
+    handleDashboardMessages: (state, action) => {
+      const findRoom = state.users.find(
+        (user) => user.id === action.payload.receiver.id
+      );
+      const roomCheckout = findRoom.room.id === action.payload.room.id;
+      if (roomCheckout) {
+        findRoom.room
+          .find((room) => room.id === action.payload.room.id)
+          .messages.push(action.payload);
+      }
+
+      /*if (!roomCheckout) {
+        findRoom.rooms
+          .find((rooms) => rooms.id === action.payload.room.id)
+          .messages.push(action.payload);
+      }*/
+    },
+
     logout: (state) => {
       state.CurrentUser = null;
       state.Token = null;
@@ -79,5 +97,6 @@ export const {
   handleUsersRoom,
   logout,
   handleRemoveUsersMessages,
+  handleDashboardMessages,
 } = userSlice.actions;
 export default userSlice.reducer;

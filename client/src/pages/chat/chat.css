@@ -14,6 +14,15 @@
   width: 550px;
   height: 220px;
   background-color: white;
-
   border-radius: 5px;
+}
+
+.chat-bg {
+  background-color: #d9e4f5;
+  background-image: linear-gradient(315deg, #d9e4f5 0%, #f5e3e6 74%);
+}
+
+.chat-bg-c {
+  background-color: #f9fcff;
+  background-image: linear-gradient(147deg, #f9fcff 0%, #dee4ea 74%);
 }

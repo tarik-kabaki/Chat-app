@@ -2,6 +2,8 @@ import { OnModuleInit } from '@nestjs/common';
 import { WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server } from 'socket.io';
 
+let OnlineUsers = [];
+
 @WebSocketGateway({
   cors: {
     origin: 'http://localhost:3000',
@@ -15,9 +17,17 @@ export class EventsGateway implements OnModuleInit {
     this.server.on('connection', (socket) => {
       console.log(`User with ID ${socket.id} is connected`);
 
+      socket.on('newUser', (data) => {
+        OnlineUsers.push({ ...data, socketId: socket.id });
+      });
+
       socket.on('joinRoom', (data) => {
         socket.join(data);
         console.log(`User with ID ${socket.id} join room : ${data}`);
+      });
+
+      socket.on('handlingUsersRooms', (data) => {
+        socket.broadcast.emit('ReshandlingUsersRooms', data);
       });
 
       socket.on('sendMessage', (data) => {
@@ -30,7 +40,12 @@ export class EventsGateway implements OnModuleInit {
 
       socket.on('disconnect', () => {
         console.log(`User with ID ${socket.id} has been disconnect`);
+        OnlineUsers.filter((item) => item.socketId !== socket.id);
       });
+
+      // Calling sections //
+
+      socket.on('audioCall', (data) => {});
     });
   }
 }

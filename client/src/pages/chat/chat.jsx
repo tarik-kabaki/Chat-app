@@ -11,13 +11,28 @@ import "./chat.css";
 import RemoveMessage from "../model/removeMessage";
 import { handleRemoveRoomMessage } from "../../redux/roomSlice";
 import { handleRemoveUsersMessages } from "../../redux/userSlice";
+import { handleDashboardMessages } from "../../redux/userSlice";
+import Button from "@mui/material/Button";
+import Call from "@mui/icons-material/Call";
+import Videocam from "@mui/icons-material/Videocam";
 import EmojiPicker from "emoji-picker-react";
+import CloudUpload from "@mui/icons-material/CloudUpload";
 import { handleUsersMessages } from "../../redux/userSlice";
+import AudioCall from "../model/audioCall";
+import VideoCall from "../model/videoCall";
 
 const Chat = ({ CurrentUser, receiver, socket, isOnline }) => {
   const [message, setMessage] = useState("");
+  const [file, setFile] = useState(null);
+  const type = "image";
   const room = useSelector((state) => state.room.Room);
   const dispatch = useDispatch();
+  const formatData = new FormData();
+  formatData.append("file", file);
+  formatData.append("roomId", room.id);
+  formatData.append("type", type);
+
+  console.log(type);
 
   useEffect(() => {
     socket.on("resMessageRemoveRequest", (data) => {
@@ -38,15 +53,35 @@ const Chat = ({ CurrentUser, receiver, socket, isOnline }) => {
         {
           roomId: room.id,
           messages: message,
+          type: "message",
         }
       )
       .then((res) => {
+        console.log(res.data);
+        dispatch(handleDashboardMessages({ ...res.data, receiver: receiver }));
         dispatch(handleRoomMessages(res.data));
 
         socket.emit("sendMessage", res.data);
         //dispatch(handleUsersMessages({ ...res.data, to: receiver.id }))
       })
       .catch((err) => console.log(err));
+  };
+
+  const handleUploadImage = () => {
+    axios
+      .post(
+        `${process.env.REACT_APP_LOCALHOST}messages/messages/image/${CurrentUser.id}`,
+        formatData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      )
+      .then((res) => {
+        setFile(null);
+      })
+      .catch((err) => console.log(err.data));
   };
 
   useEffect(() => {
@@ -57,53 +92,67 @@ const Chat = ({ CurrentUser, receiver, socket, isOnline }) => {
   }, [socket]);
 
   return (
-    <div className="w-[80%] h-full bg-gray-100 relative">
+    <div className="w-[80%] h-full chat-bg-c relative ">
       {room ? (
         <div className="w-full h-full">
           <div className="w-full">
-            <div className="h-[120px] bg-opacity-30 shadow-gray-800 shadow-2xl">
-              <div className="flex h-full w-full p-5 pl-10">
-                <div className="w-[80px] h-[80px] border-2 border-white shadow-gray-500 shadow-sm rounded-full overflow-hidden">
-                  <img
-                    src={
-                      receiver?.image
-                        ? `${process.env.REACT_APP_LOCALHOST}users/upload/${receiver.image}`
-                        : un
-                    }
-                    className="object-cover bg-white w-[80px] h-[80px] "
-                  />
-                </div>
-
-                <section className="p-2">
-                  <div className="text-2xl text-slate-600 flex items-center gap-1">
-                    <span>
-                      {receiver.firstname.charAt(0).toUpperCase() +
-                        receiver.firstname.slice(1)}
-                    </span>
-                    <span>
-                      {receiver.lastname.charAt(0).toUpperCase() +
-                        receiver.lastname.slice(1)}
-                    </span>
+            <div className="h-[120px]">
+              <div className="flex items-center h-full w-full p-5 pl-10">
+                <section className="flex h-full w-full">
+                  <div className="w-[80px] h-[80px] border-2 border-white shadow-gray-500 shadow-sm rounded-full overflow-hidden">
+                    <img
+                      src={
+                        receiver?.image
+                          ? `${process.env.REACT_APP_LOCALHOST}users/upload/${receiver.image}`
+                          : un
+                      }
+                      className="object-cover bg-white w-[80px] h-[80px] "
+                    />
                   </div>
-                  <div className=" text-orange-500 flex items-center gap-1">
-                    <span>
-                      #.
-                      {receiver.username.charAt(0).toUpperCase() +
-                        receiver.username.slice(1)}
-                    </span>
-                  </div>
-                  {isOnline ? (
-                    <div className="flex gap-2 items-center ">
-                      <div className="w-[10px] h-[10px] rounded-full bg-green-500"></div>
-                      <span className="text-gray-500 text-sm">Online</span>
+                  <section className="p-2">
+                    <div className="text-2xl text-slate-600 flex items-center gap-1">
+                      <span>
+                        {receiver.firstname.charAt(0).toUpperCase() +
+                          receiver.firstname.slice(1)}
+                      </span>
+                      <span>
+                        {receiver.lastname.charAt(0).toUpperCase() +
+                          receiver.lastname.slice(1)}
+                      </span>
                     </div>
-                  ) : null}
+                    <div className=" text-orange-500 flex items-center gap-1">
+                      <span>
+                        #
+                        {receiver.username.charAt(0).toUpperCase() +
+                          receiver.username.slice(1)}
+                      </span>
+                    </div>
+                    {isOnline ? (
+                      <div className="flex gap-2 items-center ">
+                        <div className="w-[10px] h-[10px] rounded-full bg-green-500"></div>
+                        <span className="text-gray-500 text-sm">Online</span>
+                      </div>
+                    ) : null}
+                  </section>
+                </section>
+
+                <section className="flex items-center gap-3">
+                  <AudioCall
+                    CurrentUser={CurrentUser}
+                    receiver={receiver}
+                    socket={socket}
+                  />
+                  <VideoCall
+                    CurrentUser={CurrentUser}
+                    receiver={receiver}
+                    socket={socket}
+                  />
                 </section>
               </div>
             </div>
           </div>
 
-          <div className="h-[80%] bg-gray-200 p-10 overflow-y-scroll overflow-hidden">
+          <div className="h-[80%] chat-bg-c p-10 overflow-y-scroll overflow-hidden">
             {room.messages.map((item, key) => (
               <div
                 key={key}
@@ -183,28 +232,46 @@ const Chat = ({ CurrentUser, receiver, socket, isOnline }) => {
               </div>
             ))}
           </div>
-
-          <div className="absolute bottom-0 h-[90px] w-full bg-white p-5">
-            <div className="h-full w-full flex items-center">
+          <section className="absolute bottom-0 w-full p-5">
+            <div className="w-full flex items-center gap-2">
               <input
-                onChange={(e) => setMessage(e.target.value)}
-                className="w-[80%] p-4 text-lg focus:outline-none"
+                className="w-[90%] p-4 rounded-full focus:outline-none "
                 placeholder="Write something to send ..."
+                onChange={(e) => setMessage(e.target.value)}
               />
-              <div className="w-[20%] flex items-center justify-end gap-3 p-5">
-                <button className="p-2 rounded-full bg-slate-400 text-white hover:bg-gray-600 duration-300">
-                  <AttachFile />
-                </button>
-
-                <button
-                  onClick={HandleMessage}
-                  className="p-2 rounded-full bg-emerald-500 text-white hover:bg-emerald-700 duration-300"
+              {file === null ? (
+                <Button
+                  component="label"
+                  className=" flex items-center gap-2 hover:text-blue-400 duration-300"
                 >
-                  <Telegram />
+                  <div className="p-2 rounded-full bg-white text-black">
+                    <AttachFile />
+                  </div>
+
+                  <input
+                    hidden
+                    multiple
+                    type="file"
+                    onChange={(e) => setFile(e.target.files[0])}
+                  />
+                </Button>
+              ) : (
+                <button
+                  onClick={handleUploadImage}
+                  className="p-2 rounded-full bg-emerald-500 text-white hover:bg-blue-400 duration-300"
+                >
+                  <CloudUpload />
                 </button>
-              </div>
+              )}
+
+              <button
+                onClick={HandleMessage}
+                className="p-2 rounded-full bg-emerald-500 text-white hover:bg-emerald-700 duration-300"
+              >
+                <Telegram />
+              </button>
             </div>
-          </div>
+          </section>
         </div>
       ) : (
         <div className="w-full h-full bg-gray-100 flex justify-center items-center">
@@ -235,3 +302,27 @@ export default Chat;
 
 /*
             {new Date(item.createdAt).toISOString().split("T")[0]} */
+
+/*
+            
+              <div className="absolute bottom-0 h-[90px] w-full bg-white p-5">
+            <div className="h-full w-full flex items-center">
+              <input
+                onChange={(e) => setMessage(e.target.value)}
+                className="w-[80%] p-4 text-lg focus:outline-none"
+                placeholder="Write something to send ..."
+              />
+              <div className="w-[20%] flex items-center justify-end gap-3 p-5">
+                <button className="p-2 rounded-full bg-slate-400 text-white hover:bg-gray-600 duration-300">
+                  <AttachFile />
+                </button>
+
+                <button
+                  onClick={HandleMessage}
+                  className="p-2 rounded-full bg-emerald-500 text-white hover:bg-emerald-700 duration-300"
+                >
+                  <Telegram />
+                </button>
+              </div>
+            </div>
+          </div>*/
