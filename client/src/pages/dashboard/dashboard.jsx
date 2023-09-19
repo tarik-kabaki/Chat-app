@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import un from "../../av/un.png";
 import axios from "axios";
 import Model from "../model/model";
+import InsertPhotoRounded from "@mui/icons-material/InsertPhotoRounded";
 import { handleRoom, handleRoomArry, logOut } from "../../redux/roomSlice";
 import { handleUsersRoom, logout } from "../../redux/userSlice";
 
@@ -129,9 +130,18 @@ const Dashboard = ({ socket }) => {
                           <div className="text-white">You : </div>
                         ) : null}
 
-                        <span>{`${
-                          cleanCode(CurrentUser, item)?.message
-                        }`}</span>
+                        <span>
+                          {cleanCode(CurrentUser, item)?.type === "image" ? (
+                            <div className="gap-1 flex items-center text-orange-400">
+                              <InsertPhotoRounded
+                                style={{ width: "18px", height: "18px" }}
+                              />
+                              <span>Sent an Photo</span>
+                            </div>
+                          ) : (
+                            `${cleanCode(CurrentUser, item)?.message}`
+                          )}
+                        </span>
                       </div>
                     ) : (
                       <span className="text-orange-400">

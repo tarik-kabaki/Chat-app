@@ -29,10 +29,8 @@ const Chat = ({ CurrentUser, receiver, socket, isOnline }) => {
   const dispatch = useDispatch();
   const formatData = new FormData();
   formatData.append("file", file);
-  formatData.append("roomId", room.id);
+  formatData.append("roomId", room?.id);
   formatData.append("type", type);
-
-  console.log(type);
 
   useEffect(() => {
     socket.on("resMessageRemoveRequest", (data) => {
@@ -57,7 +55,6 @@ const Chat = ({ CurrentUser, receiver, socket, isOnline }) => {
         }
       )
       .then((res) => {
-        console.log(res.data);
         dispatch(handleDashboardMessages({ ...res.data, receiver: receiver }));
         dispatch(handleRoomMessages(res.data));
 
@@ -80,6 +77,9 @@ const Chat = ({ CurrentUser, receiver, socket, isOnline }) => {
       )
       .then((res) => {
         setFile(null);
+        dispatch(handleDashboardMessages({ ...res.data, receiver: receiver }));
+        dispatch(handleRoomMessages(res.data));
+        socket.emit("sendMessage", res.data);
       })
       .catch((err) => console.log(err.data));
   };
@@ -204,7 +204,14 @@ const Chat = ({ CurrentUser, receiver, socket, isOnline }) => {
                         : "mb-3 text-slate-100"
                     }
                   >
-                    {item?.message}
+                    {item?.type === "message" ? (
+                      item?.message
+                    ) : (
+                      <img
+                        className="rounded-xl"
+                        src={`${process.env.REACT_APP_LOCALHOST}messages/getChatImage/${item?.message}`}
+                      />
+                    )}
                   </p>
                   <div
                     className={
