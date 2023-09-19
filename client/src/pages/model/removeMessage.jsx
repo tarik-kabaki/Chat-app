@@ -16,9 +16,13 @@ const RemoveMessage = ({ item, CurrentUser, receiver, socket }) => {
   const dispatch = useDispatch();
 
   const handleMessagesRemove = () => {
-    axios.delete(
-      `${process.env.REACT_APP_LOCALHOST}messages/removeMsg/${item.id}`
-    );
+    axios
+      .delete(`${process.env.REACT_APP_LOCALHOST}messages/removeMsg/${item.id}`)
+      .then(() => {
+        axios.delete(
+          `${process.env.REACT_APP_LOCALHOST}messages/deleteImage/${item?.message}`
+        );
+      });
     socket.emit("messageRemoveRequest", {
       msgData: item,
       sender: CurrentUser,

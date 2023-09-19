@@ -13,6 +13,7 @@ import {
 import { MessagesService } from './messages.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
+import * as fs from 'fs';
 
 @Controller('messages')
 export class MessagesController {
@@ -26,6 +27,17 @@ export class MessagesController {
   @Get('getChatImage/:image')
   getChatImage(@Param('image') image, @Res() res) {
     return res.sendFile(image, { root: './chatImages' });
+  }
+
+  @Delete('deleteImage/:image')
+  deleteChatImage(@Param('image') image: string) {
+    return fs.unlink('./chatImages/' + image, (err) => {
+      if (err) {
+        throw err;
+      }
+
+      console.log(`${image} : Delete File successfully.`);
+    });
   }
 
   @Post('create/:id')

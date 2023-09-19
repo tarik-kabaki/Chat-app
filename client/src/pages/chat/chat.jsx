@@ -208,7 +208,7 @@ const Chat = ({ CurrentUser, receiver, socket, isOnline }) => {
                       item?.message
                     ) : (
                       <img
-                        className="rounded-xl"
+                        className="rounded-xl max-h-[600px]"
                         src={`${process.env.REACT_APP_LOCALHOST}messages/getChatImage/${item?.message}`}
                       />
                     )}
