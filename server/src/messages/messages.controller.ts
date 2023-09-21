@@ -35,8 +35,6 @@ export class MessagesController {
       if (err) {
         throw err;
       }
-
-      console.log(`${image} : Delete File successfully.`);
     });
   }
 

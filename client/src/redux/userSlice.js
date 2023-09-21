@@ -7,6 +7,7 @@ export const userSlice = createSlice({
     Token: null,
     users: [],
     notification: [],
+    isOnline: false,
   },
   reducers: {
     login: (state, action) => {

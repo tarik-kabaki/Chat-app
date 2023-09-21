@@ -19,6 +19,7 @@ export class EventsGateway implements OnModuleInit {
 
       socket.on('newUser', (data) => {
         OnlineUsers.push({ ...data, socketId: socket.id });
+        console.log(OnlineUsers);
       });
 
       socket.on('joinRoom', (data) => {
@@ -40,12 +41,23 @@ export class EventsGateway implements OnModuleInit {
 
       socket.on('disconnect', () => {
         console.log(`User with ID ${socket.id} has been disconnect`);
-        OnlineUsers.filter((item) => item.socketId !== socket.id);
+        OnlineUsers.splice(
+          OnlineUsers.findIndex((item) => item.userId === socket.id),
+          1,
+        );
+        console.log(OnlineUsers);
       });
 
       // Calling sections //
 
-      socket.on('audioCall', (data) => {});
+      socket.on('audioCall', (data) => {
+        socket
+          .to(
+            OnlineUsers?.find((item) => item?.userId === data?.receiver?.id)
+              ?.socketId,
+          )
+          .emit('callReceiver', data);
+      });
     });
   }
 }
