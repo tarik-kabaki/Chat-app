@@ -8,6 +8,7 @@ export const userSlice = createSlice({
     users: [],
     notification: [],
     isOnline: false,
+    stream: null,
   },
   reducers: {
     login: (state, action) => {
@@ -87,6 +88,12 @@ export const userSlice = createSlice({
       state.Token = null;
       state.users = [];
     },
+
+    // MediaStream //
+
+    handleStream: (state, action) => {
+      state.stream = action.payload;
+    },
   },
 });
 
@@ -99,5 +106,6 @@ export const {
   logout,
   handleRemoveUsersMessages,
   handleDashboardMessages,
+  handleStream,
 } = userSlice.actions;
 export default userSlice.reducer;

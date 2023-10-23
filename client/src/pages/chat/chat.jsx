@@ -20,10 +20,13 @@ import CloudUpload from "@mui/icons-material/CloudUpload";
 import { handleUsersMessages } from "../../redux/userSlice";
 import AudioCall from "../model/audioCall";
 import VideoCall from "../model/videoCall";
+import Clear from "@mui/icons-material/Clear";
+import Image from "@mui/icons-material/Image";
 
 const Chat = ({ CurrentUser, receiver, socket, isOnline }) => {
   const [message, setMessage] = useState("");
   const [file, setFile] = useState(null);
+  const [openAttach, setOpenAttach] = useState(false);
   const type = "image";
   const room = useSelector((state) => state.room.Room);
   const dispatch = useDispatch();
@@ -63,6 +66,8 @@ const Chat = ({ CurrentUser, receiver, socket, isOnline }) => {
       })
       .catch((err) => console.log(err));
   };
+
+  const openAttachFile = () => {};
 
   const handleUploadImage = () => {
     axios
@@ -239,44 +244,67 @@ const Chat = ({ CurrentUser, receiver, socket, isOnline }) => {
               </div>
             ))}
           </div>
-          <section className="absolute bottom-0 w-full p-5">
-            <div className="w-full flex items-center gap-2">
-              <input
-                className="w-[90%] p-4 rounded-full focus:outline-none "
-                placeholder="Write something to send ..."
-                onChange={(e) => setMessage(e.target.value)}
-              />
-              {file === null ? (
-                <Button
-                  component="label"
-                  className=" flex items-center gap-2 hover:text-blue-400 duration-300"
-                >
-                  <div className="p-2 rounded-full bg-white text-black">
-                    <AttachFile />
+          <section className="absolute bottom-0 w-full h-24 flex items-center justify-center">
+            <div className="rounded-full w-[95%] h-14 bg-gradient-to-r from-gray-500 to-gray-400 bg-opacity-70 flex items-center justify-around gap-3 p-5">
+              {file ? (
+                <div className="w-[90%] pl-2 flex items-center gap-2 text-white">
+                  <div className="p-2 rounded-full bg-red-500 text-white flex items-center gap-3">
+                    <Image />
+                    {file.name}
                   </div>
-
-                  <input
-                    hidden
-                    multiple
-                    type="file"
-                    onChange={(e) => setFile(e.target.files[0])}
-                  />
-                </Button>
+                  <div
+                    onClick={() => setFile(null)}
+                    className="p-2 rounded-full bg-red-500 text-white hover:opacity-70 duration-300"
+                  >
+                    <button>
+                      {" "}
+                      <Clear />
+                    </button>
+                  </div>
+                </div>
               ) : (
-                <button
-                  onClick={handleUploadImage}
-                  className="p-2 rounded-full bg-emerald-500 text-white hover:bg-blue-400 duration-300"
-                >
-                  <CloudUpload />
-                </button>
+                <input
+                  className="w-[90%] pl-2 bg-transparent placeholder:text-gray-300 focus:outline-none text-white"
+                  placeholder="Write something to send ..."
+                />
               )}
 
-              <button
-                onClick={HandleMessage}
-                className="p-2 rounded-full bg-emerald-500 text-white hover:bg-emerald-700 duration-300"
-              >
-                <Telegram />
-              </button>
+              <section className="flex items-center  p-2 gap-3">
+                {file === null ? (
+                  <div
+                    onClick={openAttachFile}
+                    className="rounded-full bg-white flex justify-center items-center p-2 hover:opacity-70 duration-300"
+                  >
+                    <label className="cursor-pointer ">
+                      <AttachFile />
+                      <input
+                        type="file"
+                        style={{ display: "none" }}
+                        onChange={(e) => setFile(e.target.files[0])}
+                      />
+                    </label>
+                  </div>
+                ) : (
+                  <section className="flex items-center gap-3">
+                    <div
+                      onClick={handleUploadImage}
+                      className="p-2 rounded-full bg-blue-500 text-white hover:opacity-70 duration-300"
+                    >
+                      <button onClick={handleUploadImage}>
+                        {" "}
+                        <CloudUpload />
+                      </button>
+                    </div>
+                  </section>
+                )}
+
+                <button
+                  onClick={HandleMessage}
+                  className="rounded-full bg-white flex justify-center items-center p-2 hover:opacity-70 duration-300"
+                >
+                  <Telegram />
+                </button>
+              </section>
             </div>
           </section>
         </div>
@@ -333,3 +361,45 @@ export default Chat;
               </div>
             </div>
           </div>*/
+
+/*
+           <section className="absolute bottom-0 w-full p-5">
+            <div className="w-full flex items-center gap-2">
+              <input
+                className="w-[90%] p-4 rounded-full focus:outline-none "
+                placeholder="Write something to send ..."
+                onChange={(e) => setMessage(e.target.value)}
+              />
+              {file === null ? (
+                <Button
+                  component="label"
+                  className=" flex items-center gap-2 hover:text-blue-400 duration-300"
+                >
+                  <div className="p-2 rounded-full bg-white text-black">
+                    <AttachFile />
+                  </div>
+
+                  <input
+                    hidden
+                    multiple
+                    type="file"
+                    onChange={(e) => setFile(e.target.files[0])}
+                  />
+                </Button>
+              ) : (
+                <button
+                  onClick={handleUploadImage}
+                  className="p-2 rounded-full bg-emerald-500 text-white hover:bg-blue-400 duration-300"
+                >
+                  <CloudUpload />
+                </button>
+              )}
+
+              <button
+                onClick={HandleMessage}
+                className="p-2 rounded-full bg-emerald-500 text-white hover:bg-emerald-700 duration-300"
+              >
+                <Telegram />
+              </button>
+            </div>
+          </section> */

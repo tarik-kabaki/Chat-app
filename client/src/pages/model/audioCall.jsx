@@ -1,23 +1,51 @@
-import React, { useEffect } from "react";
+import React, { StrictMode, useEffect, useRef, useState } from "react";
 import Box from "@mui/material/Box";
 import Call from "@mui/icons-material/Call";
+import CallEnd from "@mui/icons-material/CallEnd";
 import ClearRounded from "@mui/icons-material/ClearRounded";
 import Modal from "@mui/material/Modal";
 import un from "../../av/un.png";
 import "../model/model.css";
+import Peer from "simple-peer";
+import { useDispatch, useSelector } from "react-redux";
+import { handleStream } from "../../redux/userSlice";
 
 const AudioCall = ({ CurrentUser, receiver, socket }) => {
   const [open, setOpen] = React.useState(false);
+  // const [callAccepted, setCallAccepted] = useState(false);
+  const [callEnd, setCallEnd] = useState(false);
+  const [stream, setStream] = useState();
+  const MyAudioCall = useRef();
   const handleOpen = () => setOpen(true);
+
+  useEffect(() => {
+    socket.on("callReceiver", (data) => {
+      if (data === null) {
+        setOpen(false);
+      }
+    });
+  }, [socket]);
+
+  useEffect(() => {
+    socket.on("callAccepted", (dataCall) => {
+      if (dataCall.userCallAccept === true) {
+        // setCallAccepted(true);
+        handleClose();
+      }
+    });
+  }, [socket]);
 
   const handleAudioCall = () => {
     handleOpen();
-    socket.emit("audioCall", { caller: CurrentUser, receiver: receiver });
+    socket.emit("audioCall", {
+      caller: CurrentUser,
+      receiver: receiver,
+    });
   };
 
   const handleClose = () => {
     setOpen(false);
-    socket.emit("audioCall", null);
+    socket.emit("EndAudioCall", { caller: CurrentUser, receiver: receiver });
   };
 
   return (
@@ -30,7 +58,6 @@ const AudioCall = ({ CurrentUser, receiver, socket }) => {
       </button>
       <Modal
         open={open}
-        onClose={handleClose}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
@@ -68,17 +95,19 @@ const AudioCall = ({ CurrentUser, receiver, socket }) => {
                 </span>
               </div>
             </section>
+
             <section className="mb-14 flex justify-center text-md text-blue-400">
-              Calling…
+              <audio autoPlay ref={MyAudioCall} />
             </section>
+
             <section className="flex justify-center">
               <div className="w-[40%]">
                 <section className="flex justify-center">
                   <button
                     onClick={handleClose}
-                    className="hover:text-red-500 duration-200 rounded-full w-14 h-14 bg-white flex justify-center items-center"
+                    className="bg-red-500 text-white hover:opacity-70 duration-200 rounded-full w-14 h-14  flex justify-center items-center"
                   >
-                    <ClearRounded />
+                    <CallEnd />
                   </button>
                 </section>
               </div>

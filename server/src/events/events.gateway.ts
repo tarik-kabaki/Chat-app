@@ -42,8 +42,9 @@ export class EventsGateway implements OnModuleInit {
       socket.on('disconnect', () => {
         console.log(`User with ID ${socket.id} has been disconnect`);
         OnlineUsers.splice(
-          OnlineUsers.findIndex((item) => item.userId === socket.id),
-          1,
+          OnlineUsers.findIndex((item) => item.socketId === socket.id)
+            ? 1
+            : undefined,
         );
         console.log(OnlineUsers);
       });
@@ -57,6 +58,44 @@ export class EventsGateway implements OnModuleInit {
               ?.socketId,
           )
           .emit('callReceiver', data);
+      });
+
+      socket.on('EndAudioCall', (data) => {
+        socket
+          .to(
+            OnlineUsers?.find((item) => item?.userId === data?.receiver?.id)
+              ?.socketId,
+          )
+          .emit('callReceiver', null);
+      });
+
+      socket.on('callAcceptedReq', (data) => {
+        socket
+          .to(
+            OnlineUsers?.find((item) => item?.userId === data?.receiver?.id)
+              ?.socketId,
+          )
+          .emit('callAccepted', { userCallAccept: true, data });
+      });
+
+      // users Signal Audio //
+
+      socket.on('CallerAudioSignal', (data) => {
+        socket
+          .to(
+            OnlineUsers?.find((item) => item?.userId === data?.receiver?.id)
+              ?.socketId,
+          )
+          .emit('AudioSignalCaller', data);
+      });
+
+      socket.on('ReceiverAudioSignal', (data) => {
+        socket
+          .to(
+            OnlineUsers?.find((item) => item?.userId === data?.receiver?.id)
+              ?.socketId,
+          )
+          .emit('AudioSignalReceiver', data);
       });
     });
   }

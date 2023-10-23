@@ -60,3 +60,14 @@
   border-radius: 5px;
   padding: 4;
 }
+.audioRoomCard {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  height: 400px;
+  width: 580px;
+  background-color: #3b3b3b;
+  border-radius: 5px;
+  padding: 4;
+}
