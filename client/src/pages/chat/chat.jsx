@@ -10,7 +10,10 @@ import "../dashboard/dash.css";
 import "./chat.css";
 import RemoveMessage from "../model/removeMessage";
 import { handleRemoveRoomMessage } from "../../redux/roomSlice";
-import { handleRemoveUsersMessages } from "../../redux/userSlice";
+import {
+  handleAudioCall,
+  handleRemoveUsersMessages,
+} from "../../redux/userSlice";
 import { handleDashboardMessages } from "../../redux/userSlice";
 import Button from "@mui/material/Button";
 import Call from "@mui/icons-material/Call";
@@ -26,7 +29,6 @@ import Image from "@mui/icons-material/Image";
 const Chat = ({ CurrentUser, receiver, socket, isOnline }) => {
   const [message, setMessage] = useState("");
   const [file, setFile] = useState(null);
-  const [openAttach, setOpenAttach] = useState(false);
   const type = "image";
   const room = useSelector((state) => state.room.Room);
   const dispatch = useDispatch();
@@ -67,8 +69,6 @@ const Chat = ({ CurrentUser, receiver, socket, isOnline }) => {
       .catch((err) => console.log(err));
   };
 
-  const openAttachFile = () => {};
-
   const handleUploadImage = () => {
     axios
       .post(
@@ -95,6 +95,16 @@ const Chat = ({ CurrentUser, receiver, socket, isOnline }) => {
       console.log(data);
     });
   }, [socket]);
+
+  useEffect(() => {}, [socket]);
+
+  const handleOpenAudioCall = () => {
+    dispatch(handleAudioCall());
+    socket.emit("audioCall", {
+      caller: CurrentUser,
+      receiver: receiver,
+    });
+  };
 
   return (
     <div className="w-[80%] h-full chat-bg-c relative ">
@@ -142,11 +152,12 @@ const Chat = ({ CurrentUser, receiver, socket, isOnline }) => {
                 </section>
 
                 <section className="flex items-center gap-3">
-                  <AudioCall
-                    CurrentUser={CurrentUser}
-                    receiver={receiver}
-                    socket={socket}
-                  />
+                  <button
+                    onClick={handleOpenAudioCall}
+                    className="bg-blue-500 text-white rounded-full w-10 h-10 flex justify-center items-center overflow-hidden hover:opacity-70 duration-300"
+                  >
+                    <Call />
+                  </button>
                   <VideoCall
                     CurrentUser={CurrentUser}
                     receiver={receiver}
@@ -266,15 +277,13 @@ const Chat = ({ CurrentUser, receiver, socket, isOnline }) => {
                 <input
                   className="w-[90%] pl-2 bg-transparent placeholder:text-gray-300 focus:outline-none text-white"
                   placeholder="Write something to send ..."
+                  onChange={(e) => setMessage(e.target.value)}
                 />
               )}
 
               <section className="flex items-center  p-2 gap-3">
                 {file === null ? (
-                  <div
-                    onClick={openAttachFile}
-                    className="rounded-full bg-white flex justify-center items-center p-2 hover:opacity-70 duration-300"
-                  >
+                  <div className="rounded-full bg-white flex justify-center items-center p-2 hover:opacity-70 duration-300">
                     <label className="cursor-pointer ">
                       <AttachFile />
                       <input

@@ -7,9 +7,14 @@ import axios from "axios";
 import Model from "../model/model";
 import InsertPhotoRounded from "@mui/icons-material/InsertPhotoRounded";
 import { handleRoom, handleRoomArry, logOut } from "../../redux/roomSlice";
-import { handleUsersRoom, logout } from "../../redux/userSlice";
+import {
+  handleAudioCall,
+  handleUsersRoom,
+  logout,
+} from "../../redux/userSlice";
 import AudioCallReq from "../model/audioCallReq";
-import AudioRoom from "../model/audioRoom";
+import AudioCall from "../model/audioCall";
+import { Hidden } from "@mui/material";
 
 const Dashboard = ({ socket }) => {
   const [receiver, setReceiver] = useState();
@@ -89,8 +94,12 @@ const Dashboard = ({ socket }) => {
   return (
     <div className="h-screen w-full flex">
       <div className="w-[400px] bg-gray-800 bg-opacity-90 h-full relative">
-        <AudioRoom socket={socket} callData={callData} />
-        <AudioCallReq callData={callData} socket={socket} />
+        <AudioCall
+          socket={socket}
+          callData={callData}
+          receiver={receiver}
+          CurrentUser={CurrentUser}
+        />
         <Model CurrentUser={CurrentUser} un={un} socket={socket} />
         <div className=" h-[100px] p-5 gap-2  flex items-center justify-center">
           <div className="p-3 bg-gray-600 rounded-full shadow-md text-white ">

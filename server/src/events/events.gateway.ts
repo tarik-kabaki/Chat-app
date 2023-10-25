@@ -77,26 +77,6 @@ export class EventsGateway implements OnModuleInit {
           )
           .emit('callAccepted', { userCallAccept: true, data });
       });
-
-      // users Signal Audio //
-
-      socket.on('CallerAudioSignal', (data) => {
-        socket
-          .to(
-            OnlineUsers?.find((item) => item?.userId === data?.receiver?.id)
-              ?.socketId,
-          )
-          .emit('AudioSignalCaller', data);
-      });
-
-      socket.on('ReceiverAudioSignal', (data) => {
-        socket
-          .to(
-            OnlineUsers?.find((item) => item?.userId === data?.receiver?.id)
-              ?.socketId,
-          )
-          .emit('AudioSignalReceiver', data);
-      });
     });
   }
 }

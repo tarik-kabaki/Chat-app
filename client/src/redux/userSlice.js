@@ -9,6 +9,8 @@ export const userSlice = createSlice({
     notification: [],
     isOnline: false,
     stream: null,
+    audioCalling: false,
+    videoCalling: false,
   },
   reducers: {
     login: (state, action) => {
@@ -94,6 +96,15 @@ export const userSlice = createSlice({
     handleStream: (state, action) => {
       state.stream = action.payload;
     },
+
+    // calling section //
+    handleAudioCall: (state) => {
+      state.audioCalling = true;
+    },
+
+    handleAudioCallEnd: (state) => {
+      state.audioCalling = false;
+    },
   },
 });
 
@@ -107,5 +118,7 @@ export const {
   handleRemoveUsersMessages,
   handleDashboardMessages,
   handleStream,
+  handleAudioCall,
+  handleAudioCallEnd,
 } = userSlice.actions;
 export default userSlice.reducer;
